@@ -28,7 +28,6 @@
 		}
 		return $result;
 	}
-
 	function lh3cookie() {
 		$cookies = dirname(dirname(__FILE__)) . '\cookies\libraryh3lp.txt'; // modify path as appropriate
 		if (file_exists($cookies)) {

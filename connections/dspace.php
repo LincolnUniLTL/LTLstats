@@ -1,20 +1,8 @@
 ﻿<?php
 	function getDSpaceData($params) {
-		$url = 'https://your.dspace.com/statistics?XML'; // modify to your domain name
+		$url = 'https://example.com/statistics?XML'; // modify to your domain name
 		$url = $url . $params;
-		$result = checkCache($url);
-		if (!$result) {
-			$result = getData($url);
-			$rowset = decodeDSpace($result);
-			if (!$rowset) {
-				$result = getCache($url);
-				$rowset = decodeDSpace($result);
-			} else {
-				createCache($url,$result);
-			}
-		} else {
-			$rowset = decodeDSpace($result);
-		}
+		$rowset = getRowset($url,'decodeDSpace');
 		return $rowset;
 	}
 

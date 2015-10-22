@@ -5,9 +5,9 @@ A php dashboard for displaying statistics harvested by common library APIs
 May be pronounced "Little Stats". This repository actually contains two interwoven applications:
 
 1. LTLstats proper: all the files except `warning_note.js.php`
-  This creates a web dashboard (index.php) with a basic style (layout.css). It connects to various APIs (in /connections) to gather and display your libraryland statistics. These are cached for 24 hours (using cache.php; storing files in /cache). Cookies are stored in /cookies.
+  This creates a web dashboard (`index.php`) with a basic style (`layout.css`). It connects to various APIs (in /connections) to gather and display your libraryland statistics. These are cached for 24 hours (using `cache.php`; storing files in `/cache`). Cookies are stored in `/cookies`.
   
-2. WarningNote: `warning_note.js.php` + cache.php + /connections/exlibris_status.php
+2. WarningNote: `warning_note.js.php` + `cache.php` + `/connections/exlibris_status.php`
   This can be added to your Ex Libris Primo footer to provide an automated notice at the top of the page if the Ex Libris Status page notes any major issues with Alma or Primo functionality. There's also the option to override the automatic behaviour with a manual notice.
   
 More instructions on each of these below.
@@ -21,16 +21,17 @@ Currently the connection files available are to:
 * DSpace statistics XML view (tested in DSpace 3.1 XMLUI)
 * Ex Libris Status page, screenscraped
 * LibraryH3lp REST API
+* Scopus REST API
 * Wikipedia search API
 
 For almost all of these you will need to open the connection file to modify your API domain name, add your API key or username/password, specify your Alma/Primo server name, etc.
 
-In index.php you should identify your webpage/contact email in getData($url) line 22. From line 241 onwards (ie where the divs start) you'll also need to specify the specific Alma reports, Altmetric groups, and domain name to search in Wikipedia.
+In index.php you should identify your webpage/contact email in the `getData($url)` line 23. From line 259 onwards (ie where the divs start) you'll also need to specify the specific Alma reports, Altmetric groups, and domain name to search in Wikipedia.
 
-Check the obvious, that you've given appropriate read/write permissions for the /cache and /cookies directories.
+Check the obvious, that you've given appropriate read/write permissions for the `/cache` and `/cookies` directories.
 
 ### A little more advanced ###
-index.php also contains a bunch of functions to munge and format the data in a table. So then each div can take the raw API data ($rowset) and perform functions to keep only certain columns, display totals, and finally format in a table with headers. Available functions include:
+`index.php` also contains a bunch of functions to munge and format the data in a table. So then each div can take the raw API data ($rowset) and perform functions to keep only certain columns, display totals, and finally format in a table with headers. Available functions include:
 
 * csv2array($string) - turns a CSV table into an array
 * obj2arr($object) - turns an object into an array
@@ -42,30 +43,38 @@ index.php also contains a bunch of functions to munge and format the data in a t
 * getRows($rowset, $rows)
 * swapColRow($rowset) - switches your rows into columns and vice versa, eg turning a vertical table into a horizontal one
 * totalColumn($rowset, $columnarray) - creates a "Total" row, summing the values in any column listed in $columnarray
-* matrix($rowset,$groupCol,$valueCol) - the most powerful and clunkily coded. (I'm convinced there's a better way but haven't nutted it out yet.) Imagine you've got a table:  
-`  purple cars 23  
-  purple fans 2  
-  purple hats 11  
-  orange cars 19  
-  orange fans 6  
-  orange hats 42  `  
+* matrix($rowset,$groupCol,$valueCol) - the most powerful and clunkily coded. (I'm convinced there's a better way but haven't nutted it out yet.) Imagine you've got a table:
+
+||||  
+|------|----|-:|  
+|purple|cars|23|  
+|purple|fans| 2|  
+|purple|hats|11|  
+|orange|cars|19|  
+|orange|fans| 6|  
+|orange|hats|42|
+ 
 But you want a table:  
-`        purple orange  
-  cars  23     19  
-  fans  2      6  
-  hats  11     42  `  
+
+|    |purple|orange|  
+|----|-----:|-----:|  
+|cars|    23|    19|  
+|fans|     2|     6|  
+|hats|    11|    42|
+
 So $groupCol is the column number for the values you want in each column grouping - ie purple/orange, ie column 0. $valueCol is the column number for the values that are actually values - ie 23,3,11,19,6,42, ie column 2.
 
 * mergeTables($rowsetarray,$headers,$groupCol,$valueCol) - creates a matrix (as above) but starting with two or more similarly structured tables ($rowsetarray) and an array of $headers. Eg  
-`  $rowset[0] =  
-    cars 23  
-    fans 2  
-    hats 11  
-  $rowset[1] =   
-    cars 19  
-	fans  6  
-	hats 42  
-  $headers = {"purple","orange"}  `  
+    $rowset[0] =  
+        cars 23  
+        fans 2  
+        hats 11  
+    $rowset[1] =   
+        cars 19  
+        fans  6  
+        hats 42  
+  $headers = {"purple","orange"}
+
 $valueCol remains the column number for the actual values, so here (23,2,11,etc) - it would be 1. Since {"purple","orange"} aren't in the original tables, they get added as a new column during the function, so $groupCol should be equal to however many columns are in the original - in this case 2.
 
 * formatTable($rowset,($headerarray)) - turns an array into an html table. If there's a $headerarray, it will make these into the column headers <th>; if there's a total row it will give this its own class.
@@ -74,9 +83,9 @@ Mix and match according to your original data and desired result.
 
 WarningNote
 ------------
-1. Make sure that /connections/exlibris_status.php has the names of your own Alma/Primo servers.
-2. Obviously /cache needs appropriate read/write permissions.
-3. Paste `<script src="http://your.domain.com/`warning_note.js.php`" type="text/javascript"></script>`  (with appropriate changes to the path) into your Primo footer. If you don't already have a footer, this is controlled via Primo BackOffice > Ongoing Configuration > Views Wizard > [your view] > Tiles Configuration > Static HTML > All Pages Footer
+1. Make sure that `/connections/exlibris_status.php` has the names of your own Alma/Primo servers.
+2. Obviously `/cache` needs appropriate read/write permissions.
+3. Paste `<script src="http://your.domain.com/warning_note.js.php" type="text/javascript"></script>`  (with appropriate changes to the path) into your Primo footer. If you don't already have a footer, this is controlled via Primo BackOffice > Ongoing Configuration > Views Wizard > [your view] > Tiles Configuration > Static HTML > All Pages Footer
 
 To add a manual note, edit the value "theAlert" in `warning_note.js.php` - the note should display immediately (upon refresh) at the top of your Primo page. This will replace any automated note.
 

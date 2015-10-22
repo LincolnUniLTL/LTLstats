@@ -11,6 +11,7 @@ require_once('connections/altmetric.php');
 require_once('connections/dspace.php');
 require_once('connections/exlibris_status.php');
 require_once('connections/libraryh3lp.php');
+require_once('connections/scopus.php');
 require_once('connections/wikipedia.php');
 
 	function getData($url) {
@@ -26,6 +27,23 @@ require_once('connections/wikipedia.php');
 		return $response;
 	}
 
+	function getRowset($url,$function) {
+		$result = checkCache($url);
+		if (!$result) {
+			$result = getData($url);
+			$rowset = call_user_func($function,$result);
+			if (!$rowset) {
+				$result = getCache($url);
+				$rowset = call_user_func($function,$result);
+			} else {
+				createCache($url,$result);
+			}
+		} else {
+			$rowset = call_user_func($function,$result);
+		}
+		return $rowset;
+	}
+	
 	function csv2array($string) {
 		$array = explode("\n", $string);
 		foreach ($array as $n => $row) {
@@ -248,6 +266,8 @@ require_once('connections/wikipedia.php');
 				} else {
 					$columnOrd = array(3,2,8);
 					$rowset = getColumns($rowset,$columnOrd);
+					$rowset = keepBottom($rowset,12);
+					krsort($rowset);
 					$rowset = totalColumn($rowset,2);
 					$headers = array("Year","Month","New items");
 					formatTable($rowset,$headers);
@@ -267,8 +287,12 @@ require_once('connections/wikipedia.php');
 					$rowset = getColumns($rowset,$columnOrd);
 					$rowset = matrix($rowset,0,3);
 					$totals = array(2,3,4,5);
+					$headers = keepTop($rowset,1);
+					$headers = $headers[0];
+					$rowset = keepBottom($rowset,12);
+					krsort($rowset);
 					$rowset = totalColumn($rowset,$totals);
-					formatTable($rowset);
+					formatTable($rowset,$headers);
 				}
 			?>
 		</div>
@@ -288,6 +312,7 @@ require_once('connections/wikipedia.php');
 				} else {
 					foreach($rowset as $s => $set) {
 						$rowset[$s] = keepBottom($set,12);
+						krsort($rowset[$s]);
 					}
 					$newrowset = mergeTables($rowset,$headers,2,1);
 					$totals = array(1,2,3);
@@ -336,8 +361,48 @@ require_once('connections/wikipedia.php');
 					$rowset = swapColRow($rowset);
 					array_pop($rowset);
 					$rowset = keepBottom($rowset,12);
+					krsort($rowset);
 					$rowset = totalColumn($rowset,1);
 					$headers = array("Month","Questions");
+					formatTable($rowset,$headers);
+				}
+			?>
+		</div>
+
+		<div class="statdiv narrow" id="scopus_total">
+			<h3>Scopus total</h3>
+			<?php
+				$inst_id = "60006625"; // Scopus's institution ID for your institution
+				$proxy = "http://ezproxy.example.com/login?url="; // proxy prefix to allow authenticated access to Scopus search results
+				$rowset = getScopus($inst_id);
+				if (!$rowset['authors']) {
+					echo "[data unavailable]";
+				} else {
+					$doclink = $proxy . "http://www.scopus.com/results/results.url?src=s&sot=aff&s=%28AF-ID%28" . $inst_id . "%29%29";
+					echo '<p>';
+					echo '<strong>'.$rowset['authors'].'</strong> authors ';
+					echo 'from '.$rowset['institution'].' ';
+					echo 'have authored <a href="'.$doclink.'"><strong>'.$rowset['documents'].'</strong> research papers</a> ';
+					echo 'indexed in Scopus.';
+					echo '</p>';
+				}
+			?>
+		</div>
+		
+		<div class="statdiv narrow" id="scopus_monthly">
+			<h4>Scopus monthly</h4>
+			(Note only papers which include a publication month are counted.)
+			<?php
+				$inst_id = "60006625"; // Scopus's institution ID for your institution
+				$proxy = "http://ezproxy.example.com/login?url="; // proxy prefix to allow authenticated access to Scopus search results
+				$rowset = getScopus($inst_id);
+				if (!$rowset['monthly']) {
+					echo "[data unavailable]";
+				} else {
+					$rowset = $rowset['monthly'];
+					krsort($rowset);
+					$rowset = totalColumn($rowset,2);
+					$headers = array("Year","Month","No.");
 					formatTable($rowset,$headers);
 				}
 			?>
@@ -346,10 +411,18 @@ require_once('connections/wikipedia.php');
 		<div class="statdiv narrow" id="wikipedia">
 			<h3>Wikipedia</h3>
 			<p><?php
-				$string = "http://hdl.handle.net/10182/";		// Your domain name
+				$string = "http://hdl.handle.net/10182/";		// Your handle prefix
 				$string = '"'.$string.'"';
-				echo getWikiLinks(urlencode($string));
-			?> link to pages on our website.</p>
+				$rowset = getWikiLinks(urlencode($string));
+				if (!$rowset['pages']) {
+					echo "[data unavailable]";
+				} else {
+					echo "<p><a href='https://en.wikipedia.org/w/index.php?search=insource%3A" . $string . "&title=Special%3ASearch&go=Go'>";
+					echo $rowset['pages'];
+					echo " Wikipedia pages</a>";
+					echo " link to research in <a href='http://example.com/'>Your institutional Archive</a>.</p>"; // Your domain / archive name
+				}
+			?>
 		</div>
 	</body>
 </html>
