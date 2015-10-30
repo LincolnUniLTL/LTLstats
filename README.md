@@ -45,7 +45,7 @@ Check the obvious, that you've given appropriate read/write permissions for the 
 * totalColumn($rowset, $columnarray) - creates a "Total" row, summing the values in any column listed in $columnarray
 * matrix($rowset,$groupCol,$valueCol) - the most powerful and clunkily coded. (I'm convinced there's a better way but haven't nutted it out yet.) Imagine you've got a table:
 
-||||  
+| | | |  
 |------|----|-:|  
 |purple|cars|23|  
 |purple|fans| 2|  
@@ -97,6 +97,8 @@ Note that the page is scraped once a minute only to avoid overloading the server
 
 Caveat emptor
 -------------
+
+An important limitation is that LTLstats doesn't currently deal with resumption tokens of any kind, or give you any warning that the results are incomplete...
 
 The environment this was written for requires backslashes for filepaths eg  
 `$filepath = dirname(__FILE__) . '\\cache\\\\' . $filename;`  
