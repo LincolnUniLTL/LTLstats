@@ -1,9 +1,8 @@
 ﻿<?php
 	function getAlmaRows($path) {
-		$url = 'https://api-ap.hosted.exlibrisgroup.com/almaws/v1/analytics/reports';	// modify to appropriate domain name
-		$api_key = "";								// API KEY
-		$queryParams = '?' . urlencode('path') . '=' . urlencode($path) . '&' . urlencode('limit') . '=' . urlencode('50') . '&' . urlencode('apikey') . '=' . urlencode($api_key);
-		$url = $url . $queryParams;
+		global $alma_url, $alma_apikey;
+		$queryParams = '?' . urlencode('path') . '=' . urlencode($path) . '&' . urlencode('limit') . '=' . urlencode('50') . '&' . urlencode('apikey') . '=' . urlencode($alma_apikey);
+		$url = $alma_url . $queryParams;
 		$rowset = getRowset($url,'decodeAlma');
 		return $rowset;
 	}

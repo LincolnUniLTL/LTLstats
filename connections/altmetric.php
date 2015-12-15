@@ -1,10 +1,9 @@
 ﻿<?php
 	function getAltmetric($path_array) {
-		$url = "http://www.altmetric.com/api/v1/summary_report/at?num_results=100&key=" ;
-		$api_key = "";						// API KEY
+		global $altmetric_url, $altmetric_apikey;
 		$rowset = array();
 		foreach ($path_array as $path) {
-			$this_url = $url . $api_key . $path;
+			$this_url = $altmetric_url . $altmetric_apikey . $path;
 			$rowset[] = getRowset($this_url,'decodeAltmetric');
 		}
 		return $rowset;
