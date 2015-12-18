@@ -14,6 +14,10 @@ Separate instructions on each of these below.
 
 Versioning
 ----------
+v. 2.1
+* adds EZproxy connection
+* styling: safer width code; highlight key values
+
 v. 2.0
 
 * separates the API access from the data display, massively improving pageload time of data display
@@ -40,6 +44,7 @@ Currently the connection files available are to:
 * Altmetric REST API
 * DSpace statistics XML view (tested in DSpace 3.1 XMLUI)
 * Ex Libris Status page, screenscraped
+* EZproxy audit logs (iff on same server as website)
 * LibraryH3lp REST API
 * OAI feeds - total number of items
 * Scopus REST API

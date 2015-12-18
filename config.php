@@ -1,6 +1,6 @@
 ﻿<?php
 /* Contacts */
-$version = 'LTLStats/2.0';
+$version = 'LTLStats/2.1';
 $site_url = '';				// the URL where you'll display this dashboard
 $contact_email = ''; 		// your contact address
 
@@ -23,6 +23,8 @@ $paleColours = array('b3d88c','b2cee7','b5b2d9','ffdd00','dadada');
 
 /* Access */
 $proxy = '';				// eg 'http://ezproxy.lincoln.ac.nz/login?url=';
+$proxy_audit_path = '';		// eg 'C:\\\\ezproxy\\audit\\';
+$proxy_groups = array();	// eg array("Staff/students" => "Auto everyone restricted", "Community" => "Auto everyone", "On-campus" => "Auto");
 
 $alma_domain = ''; 			// eg 'https://api-ap.hosted.exlibrisgroup.com';
 $alma_url = $alma_domain . '/almaws/v1/analytics/reports';

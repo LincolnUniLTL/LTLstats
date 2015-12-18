@@ -4,6 +4,7 @@ require_once($connections_folder.'alma.php');
 require_once($connections_folder.'alma_hours.php');
 require_once($connections_folder.'altmetric.php');
 require_once($connections_folder.'dspace.php');
+require_once($connections_folder.'ezproxy.php');
 require_once($connections_folder.'exlibris_status.php');
 require_once($connections_folder.'libraryh3lp.php');
 require_once($connections_folder.'oai.php');

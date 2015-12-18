@@ -36,7 +36,9 @@ require_once('config.php');
 		$file = fread($handle, filesize($filepath));
 		fclose($handle);
 		$rowset = csv2array($file);
-		$width = round(strlen(implode("     ",$rowset[1]))/15); // where the CSS defines .width-1 as 15em
+		$width_header = round(strlen(implode("     ",$rowset[0]))/15); // where the CSS defines .width-1 as 15em
+		$width_row1 = round(strlen(implode("     ",$rowset[1]))/15); // where the CSS defines .width-1 as 15em
+		$width = max($width_header,$width_row1);
 		if ($width>5) $width=5;
 		if ($width<1) $width=1;
 ?>

@@ -90,6 +90,18 @@ require_once('data_functions.php');
 	$rowset = array();
 	doTable($id,$title,$note,$headers,$rowset);
 
+	$id = "ezproxy_audit";
+	$title = "Database logins";
+	$rowset = getEZproxy();
+	if ($rowset) {
+		$note = "So far today, <span class='value'>" . $rowset['logins'] . "</span> people have logged in to library databases. (On-campus, most databases don't need a log-in.)";
+		// can also refer to $rowset['logouts'], $rowset['failures']
+		$headers = array("Usergroup","Log-ins");
+		$rowset = array(array_keys($proxy_groups),array_values($rowset['groups']));
+		$rowset = swapColRow($rowset);
+		doTable($id,$title,$note,$headers,$rowset);
+	}
+
 	$id = "libraryh3lp_by_month";
 	$title = "LibraryH3lp";
 	$note = "In the last year, we've answered the following questions on <a href='http://example.com/libraryh3lp/'>LibraryH3lp</a>:"; // your URL
@@ -113,7 +125,7 @@ require_once('data_functions.php');
 	$headers = array();
 	$rowset = getOAIdata("http://example.com/dspace-oai/request");	// your URL
 	if ($rowset['items']) {
-		$note = "There are " . $rowset['items'] . " open access items in <a href='http://example.com/'>our institutional repository</a>.";	// your URL
+		$note = "There are <span class='value'>" . $rowset['items'] . "</span> open access items in <a href='http://example.com/'>our institutional repository</a>.";	// your URL
 		doTable($id,$title,$note,$headers,array());
 	}
 	
@@ -122,9 +134,9 @@ require_once('data_functions.php');
 	$rowset = getScopus();
 	if ($rowset['authors']) {
 		$doclink = $proxy . "http://www.scopus.com/results/results.url?src=s&sot=aff&s=%28AF-ID%28" . $scopus_instid . "%29%29";
-		$note = '<strong>'.$rowset['authors'].'</strong> authors ';
+		$note = '<span class='value'>'.$rowset['authors'].'</span> authors ';
 		$note .= 'from '.$rowset['institution'].' ';
-		$note .= 'have authored <a href="'.$doclink.'"><strong>'.$rowset['documents'].'</strong> research papers</a> ';
+		$note .= 'have authored <a href="'.$doclink.'"><span class='value'>'.$rowset['documents'].'</span> research papers</a> ';
 		$note .= 'indexed in Scopus.';
 		$headers = "";
 		doTable($id,$title,$note,$headers,array());
@@ -148,7 +160,7 @@ require_once('data_functions.php');
 	$rowset = getWikiLinks(urlencode($string));
 	if ($rowset['pages']) {
 		$note = "<a href='https://en.wikipedia.org/w/index.php?search=insource%3A" . $string . "&title=Special%3ASearch&go=Go'>";
-		$note .= $rowset['pages'];
+		$note .= "<span class='value'>" . $rowset['pages'] . "</span>";
 		$note .= " Wikipedia pages</a>";
 		$note .= " link to research in <a href='http://example.com/'>our institutional repository</a>."; // your URL here
 		$headers = "";

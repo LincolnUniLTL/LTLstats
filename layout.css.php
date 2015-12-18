@@ -6,13 +6,13 @@
    whereby the first rule after the include above gets ignored.     */
 .dummyrule {}
 
+
 .statdiv {
 	border-radius: 1em;
 	-moz-border-radius: 1em;
 	padding: 0.5em;
 	margin: 0.5em;
 	float: left;
-	font-size: 10px;
 }
 
 .width-1 {
@@ -52,7 +52,16 @@
 .statdiv p {
 	color: black;
 	padding: 0.4em;
-	font-size: 120%;
+}
+
+.statdiv span.value {
+	font-weight: bold;
+	font-size: 150%;
+	border-radius: .25em;
+	-moz-border-radius: .25em;
+	padding: 0 .125em;
+	background-color: white;
+	text-decoration: none;
 }
 
 .statdiv a:link, .statdiv a:hover, .statdiv a:active, .statdiv a:visited {
@@ -63,13 +72,13 @@
 .statdiv table {
 	margin: 0 auto; 
 	text-align: right;
-	border-collapse: collapse;
+	border-collapse:collapse;
+	font-size: 150%;
 	color: black;
 }
 
 .statdiv td, .statdiv th {
 	padding: 0.2em;
-	font-size: 120%;
 }
 
 .statdiv .total td {
@@ -94,10 +103,25 @@
 		echo "#$d h4 {\n";
 		echo "  background-color: #$thisDark;\n";
 		echo "}\n\n";
+		
+		echo "#$d span.value {\n";
+		echo "	border: .1em solid #$thisDark;\n";
+		echo "	color: #$thisDark;\n";
+		echo "}\n\n";
 	}
 ?>
 
 p.download, p.modified {
-	text-align: right;
 	font-size: 100%;
+	text-align: right;
+}
+
+#credits {
+	clear: both;
+	padding-top: 1em;
+	text-align: center;
+}
+
+#Utility-sitename {
+	text-align: left;
 }
