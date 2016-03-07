@@ -7,6 +7,7 @@ require_once($connections_folder.'dspace.php');
 require_once($connections_folder.'ezproxy.php');
 require_once($connections_folder.'exlibris_status.php');
 require_once($connections_folder.'libraryh3lp.php');
+require_once($connections_folder.'mrbs.php');
 require_once($connections_folder.'oai.php');
 require_once($connections_folder.'scopus.php');
 require_once($connections_folder.'wikipedia.php');
@@ -100,6 +101,28 @@ require_once($connections_folder.'wikipedia.php');
 		return $newrowset;
 	}
 
+	function mergeMonthYear($rowset,$month_column,$year_column) {
+		foreach ($rowset as $r => $row) {
+			$row[$month_column] = $row[$month_column]." ".$row[$year_column];
+			unset($row[$year_column]);
+			foreach ($row as $cell) {
+				$newrowset[$r][] = $cell;
+			}
+		}
+		return $newrowset;
+	}
+	
+	function convertDates($rowset,$column,$from,$to) {
+		foreach ($rowset as $r => $row) {
+			$parsed = date_create_from_format($from, $row[$column]);
+			if ($parsed) {
+				$new_date = date_format($parsed, $to);
+				$rowset[$r][$column] = $new_date;
+			}
+		}
+		return $rowset;
+	}
+	
 	function totalColumn($rowset,$column_array) {
 		if (!is_array($column_array)) {
 			$column_array = array($column_array);
@@ -110,8 +133,8 @@ require_once($connections_folder.'wikipedia.php');
 			foreach($rowset as $row) {
 				if (!preg_match('/^total/i',$row[0]) && is_numeric($row[$column])) {
 					$total = $total + $row[$column];
-				}
-			}
+					}
+			} 
 			for ($i=0;$i<=$column;$i++) {
 				if ($i == $column) {
 					$rowset[$count][$i] = $total;
@@ -283,14 +306,15 @@ require_once($connections_folder.'wikipedia.php');
 		$prefix .= '"'.$site_url.'"'."\n";
 		$prefix .= '"'.date('Y-m-d H:i',time()).'"'."\n";
 		$prefix .= '"'.$note.'"'."\n";
+		$prefix .= '"Display as: '.$format.'"'."\n";
 		$csv = array2csv($rowset);
-		$handle = fopen($csv_folder.$id.'.'.$format,'w');
+		$handle = fopen($csv_folder.$id.'.csv','w');
 		fwrite($handle,$prefix);
 		$success = fwrite($handle,$csv);
 		fclose($handle);
 	}
 		
-	function doTable($id,$title,$note,$headers,$rowset,$format="csv") {
+	function doTable($id,$title,$note,$headers,$rowset,$format="Table") {
 		echo "		<div class='statdiv narrow' id='$id'>\n";
 		echo "			<h4>$title</h4>\n";
 		echo "			<p>$note</p>\n";

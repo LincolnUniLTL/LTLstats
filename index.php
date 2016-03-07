@@ -1,11 +1,12 @@
-﻿<html>
+﻿<?php require_once('config.php'); ?>
+<html>
 	<head>
 		<title>LTLstats</title>
 		<link rel="stylesheet" type="text/css" href="layout.css.php"/>
+		<script src="<?=$js_file;?>" type="text/javascript"></script>
 	</head>
 	<body>
 <?php
-require_once('config.php');
 
 	function csv2array($string) {
 		$rowset = explode("\n", $string);
@@ -25,6 +26,19 @@ require_once('config.php');
 		return $stripped;
 	}
 
+	function swapColRow($rowset) {
+		$newrowset = array();
+		foreach ($rowset as $r => $row) {
+			foreach ($row as $c => $col) {
+				$newrowset[$c][$r] = $col;
+			}
+		}
+		return $newrowset;
+	}
+
+	$chartload = array();
+	$fill = $paleChart;
+	$point = $darkChart;
 	foreach (glob($csv_folder.'*.csv') as $filepath) {
 		$id = substr_replace($filepath, '', 0, strlen($csv_folder));
 		$id = preg_replace('/\.csv/', '', $id);
@@ -33,44 +47,172 @@ require_once('config.php');
 		$source = strip_quotes(fgets($handle));
 		$timestamp = strip_quotes(fgets($handle));
 		$note = strip_quotes(fgets($handle));
+		$format = preg_replace('/Display as: ([^,]*),*/','$1',strip_quotes(fgets($handle)));
 		$file = fread($handle, filesize($filepath));
 		fclose($handle);
 		$rowset = csv2array($file);
-		$width_header = round(strlen(implode("     ",$rowset[0]))/15); // where the CSS defines .width-1 as 15em
-		$width_row1 = round(strlen(implode("     ",$rowset[1]))/15); // where the CSS defines .width-1 as 15em
-		$width = max($width_header,$width_row1);
+		if ($format=="Line") {
+			$chartset = swapColRow($rowset);
+			$width=round(count($chartset[0])/6);
+			$height=1.618;
+		} elseif ($format=="Bar") {
+			$chartset = swapColRow($rowset);
+			$width=round(count($chartset[0])*count($chartset)/12);
+			$height=1.618;
+		} elseif ($format=="Pie" || $format=="Doughnut") {
+			$chartset = $rowset;
+			$width=round(count($chartset)/12);
+			$height=$width;
+		} elseif ($format=="Radar") {
+			$chartset = swapColRow($rowset);
+			$width=round((count($chartset[0])-1)/6);
+			$height=$width;
+		} elseif ($format=="PolarArea") {
+			$chartset = $rowset;
+			$width=round(count($chartset)/6);
+			$height=$width;
+		} elseif ($format =="Table") {
+			$width_header = round(strlen(implode("     ",$rowset[0]))/15); // where the CSS defines .width-1 as 15em
+			$width_row1 = round(strlen(implode("     ",$rowset[1]))/15); // where the CSS defines .width-1 as 15em
+			$width = max($width_header,$width_row1);
+			$height = 1;
+		} else {
+			$format = "None";
+		}
 		if ($width>5) $width=5;
 		if ($width<1) $width=1;
+/* START "If it's displayable, create a div for it" */
+		if ($format && $format!="None") {
 ?>
-
 		<div class='statdiv width-<?=$width?>' id='<?=$id?>'>
 			<h4><?=$title?></h4>
 			<p><?=$note?></p>
-			<table>
-<?		foreach ($rowset as $n => $row) {
+<?	/* If there's a chart, create a canvas and script for it */
+		if ($format!="Table" && $format!="None" && file_exists($js_file)) {
+			$this_colour = rand(0,count($darkChart)-1);
+?>
+			<canvas id='<?=$id?>-chart' height='<?=$height*100?>' width='<?=$width*100?>'></canvas>
+			<script>
+<? 		/* Line, Bar, and Radar charts have their data in a certain format */
+			if ($format=="Line" || $format=="Bar" || $format=="Radar") { 
+				$chartlabels = $chartset[0];
+				array_shift($chartset);
+				array_shift($chartlabels);
+				foreach ($chartlabels as $l => $label) {
+					$chartlabels[$l] = '"'.$label.'"';
+				}
+				if ($chartlabels[count($chartlabels)-1] == '"Total"') {
+					array_pop($chartlabels);
+					foreach ($chartset as $s => $set) {
+						array_pop($set);
+						$chartset[$s] = $set;
+					}
+				}
+				krsort($chartlabels);
+				$chartlabels = implode(",", $chartlabels);
+?>
+				var <?=$id?>Data = {
+				labels : [<?=$chartlabels?>],
+				datasets : [
+<? 				foreach ($chartset as $s => $set) {
+					$label = array_shift($set);
+					krsort($set);
+					$set = implode(",",$set);
+?>
+					{
+						label: "<?=$label?>",
+<?			/* Line and Radar charts have certain colour data */
+ 					if ($format == "Line" || $format=="Radar") { ?>
+						fillColor : "<?=$fill[fmod($s+$this_colour,count($darkChart))]?>",
+						strokeColor : "<?=$point[fmod($s+$this_colour,count($darkChart))]?>",
+						pointColor : "<?=$point[fmod($s+$this_colour,count($darkChart))]?>",
+						pointStrokeColor : "#fff",
+						pointHighlightFill : "<?=$fill[fmod($s+$this_colour,count($darkChart))]?>",
+						pointHighlightStroke : "$fff",
+<?			/* Bar charts have different colour data */
+					} elseif ($format == "Bar" ) { ?>
+						fillColor : "<?=$point[fmod($s+$this_colour,count($darkChart))]?>",
+						strokeColor : "<?=$point[fmod($s+$this_colour,count($darkChart))]?>",
+						highlightFill: "<?=$fill[fmod($s+$this_colour,count($darkChart))]?>",
+						highlightStroke: "$fff",
+<?					} ?>
+						data : [<?=$set?>]
+					},
+<? 				} ?>
+				]
+				}
+<? 		/* Pie, Doughnut, and PolarArea charts have their data in a different format */
+			} elseif ($format=="Pie" || $format=="Doughnut" || $format=="PolarArea") {
+				array_shift($chartset);
+				array_pop($chartset);
+?>
+				var <?=$id?>Data = [
+<?				foreach ($chartset as $s => $set) { ?>
+					{ value: <?=$set[1]?>,
+					color:"<?=$point[fmod($s+$this_colour,count($darkChart))]?>",
+					highlight:"<?=$fill[fmod($s+$this_colour,count($darkChart))]?>",
+					label: "<?=$set[0]?>"
+					},
+<? 				} ?>
+				]
+<?	/* Every chart needs a chartload instruction */
+			}
+		$chartload[] = 'var ctx = document.getElementById("'.$id.'-chart").getContext("2d");
+		myChart = new Chart(ctx).'.$format.'('.$id.'Data, {responsive : true, onAnimationComplete: function(){if(!document.getElementById("'.$id.'PNG")) {var myPNG = this.toBase64Image(); var pngHolder = document.getElementById("'.$id.'-chart").parentNode.childNodes[14]; var pngLink = document.createElement("span"); pngLink.id = "'.$id.'PNG"; pngLink.innerHTML = "<a download=\''.$id.'.png\' href=\'" + myPNG + "\'>PNG</a>"; pngHolder.appendChild(pngLink);}}});
+		var location = document.getElementById("'.$id.'-chart");
+		var legendHolder = document.createElement("div");
+		legendHolder.innerHTML = myChart.generateLegend();
+		location.parentNode.insertBefore(legendHolder,location);
+'
+?>
+			</script>
+			<noscript>
+<?	/* For both tables and (in a noscript behind the canvas) charts, include the tabular data - assuming there is some */
+	}
+	if ($format && $format!="None" && $rowset[0][1]) {
+		echo "				<table>\n";
+		foreach ($rowset as $n => $row) {
 			if (preg_match('/^total/i',$row[0])) {
-				echo "				<tr class='total'>\n";
+				echo "					<tr class='total'>\n";
 			} else {
-				echo "				<tr>\n";
+				echo "					<tr>\n";
 			}
 			if ($n==0) {
 				foreach ($row as $cell) {
-					echo "					<th>".$cell."</th>\n";
+					echo "						<th>".$cell."</th>\n";
 				}
 			} else {
 				foreach ($row as $cell) {
-					echo "					<td>".$cell."</td>\n";
+					echo "						<td>".$cell."</td>\n";
 				}
 			}
-			echo "				</tr>\n";
+			echo "					</tr>\n";
 		}
+		echo "				</table>\n";
+	}
+	if ($format!="Table" && $format!="None") {
+		echo "			</noscript>\n";
+	}
 ?>
-			</table>
-			<p class='modified'>As of: <?=$timestamp?></p>
-			<p class='download'>Save as: <a href='<?=$csv_download_folder . $id . ".csv";?>'>CSV</a></p>
+ 			<p class='modified'>As of: <?=$timestamp?></p>
+<?	if ($format && $format!="None" && $rowset[0][1]) { ?>
+			<p class='download'>
+				Save as: <a href='<?=$csv_download_folder . $id . ".csv";?>'>CSV</a>
+			</p>
+<?	} ?>
 		</div>
 <?
 	}
+	}
 ?>
+
+		<script>
+		window.onload = function(){
+<? foreach ($chartload as $c) {
+	echo $c;
+}
+?>
+		}
+		</script>
 	</body>
 </html>

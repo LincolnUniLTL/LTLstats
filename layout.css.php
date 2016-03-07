@@ -13,6 +13,7 @@
 	padding: 0.5em;
 	margin: 0.5em;
 	float: left;
+	font-size:10px;
 }
 
 .width-1 {
@@ -67,6 +68,27 @@
 .statdiv a:link, .statdiv a:hover, .statdiv a:active, .statdiv a:visited {
 	color: #0069b4;
 	text-decoration: underline;
+}
+
+.legend {
+	font-size: smaller;
+	background: rgb(255,255,255) transparent;
+	background: rgba(255,255,255,0.9);
+	padding: 2px;
+	border-radius: .25em;
+	-moz-border-radius: .25em;
+}
+
+.legend span {
+	border-radius: .25em;
+	-moz-border-radius: .25em;
+}
+
+.statdiv canvas {
+	background: rgb(255,255,255) transparent;
+	background: rgba(255,255,255,0.9);
+	border-radius: .5em;
+	-moz-border-radius: .5em;
 }
 
 .statdiv table {

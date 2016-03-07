@@ -9,7 +9,7 @@
 			curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			$result = curl_exec($ch);
-			if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == '﻿﻿404') {
+			if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != '200') {
 				unlink($lh3_cookies);
 				$result = false;
 			}

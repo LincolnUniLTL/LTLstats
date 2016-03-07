@@ -1,6 +1,6 @@
 ﻿<?php
 /* Contacts */
-$version = 'LTLStats/2.1';
+$version = 'LTLStats/3.0';
 $site_url = '';				// the URL where you'll display this dashboard
 $contact_email = ''; 		// your contact address
 
@@ -18,8 +18,13 @@ $csv_folder = dirname(__FILE__) . '\\csvs\\';   // local filepath
 $csv_download_folder = '';						// full web-accessible filepath to the same folder, eg 'http://example.com/LTLstats/csvs/';
 
 /* Styles */
-$darkColours = array('4aaa42','0069b4','a877b2','b94d30','261c02');
-$paleColours = array('b3d88c','b2cee7','b5b2d9','ffdd00','dadada');
+$darkColours = array('#4aaa42','#0069b4','#a877b2','#b94d30','#261c02');
+$paleColours = array('#b3d88c','#b2cee7','#b5b2d9','#ffdd00','#dadada');
+$darkChart = array('#4aaa42','#0069b4','#a877b2','#b94d30','#261c02');
+$paleChart = array("rgba(179,216,140,0.2)","rgba(178,206,231,0.2)","rgba(181,178,217,0.2)","rgba(255,221,0,0.2)","rgba(218,218,218,0.2)");
+
+/* Charts */
+$js_file = '';				// eg 'Chart.js' - download from http://www.chartjs.org/
 
 /* Access */
 $proxy = '';				// eg 'http://ezproxy.lincoln.ac.nz/login?url=';
@@ -43,6 +48,8 @@ $lh3_url = ''; 				// eg 'https://sg.libraryh3lp.com/2011-12-03/';
 $lh3_cookies = $cookies_folder . 'libraryh3lp.txt';
 $lh3_username = '';			// your LibraryH3lp username
 $lh3_password = '';			// your LibraryH3lp password
+
+$mrbs_url = ''; 			// eg 'https://library2.lincoln.ac.nz/rooms/';
 
 $scopus_url = 'http://api.elsevier.com/content/affiliation/affiliation_id/';
 $scopus_apikey = '';		// your API key for Scopus

@@ -13,7 +13,7 @@ require_once('data_functions.php');
 		$rowset = keepBottom($rowset,12);
 		krsort($rowset);
 		$rowset = totalColumn($rowset,2);
-		doTable($id,$title,$note,$headers,$rowset);
+		doTable($id,$title,$note,$headers,$rowset,"Bar");
 	}
 
 	$id = "alma_example_2";
@@ -37,16 +37,16 @@ require_once('data_functions.php');
 		$newrowset = keepRight($newrowset,4);
 		$totals = array(2,3);
 		$newrowset = totalColumn($newrowset,$totals);
-		doTable($id,$title,$note,$headers,$newrowset);
+		doTable($id,$title,$note,$headers,$newrowset,"Line");
 	}
 
 	$id = "alma_hours";
 	$title = "Open Hours";
-	$note = "No-one in their right mind will want to see this on a stats page, but it creates a useful day-by-day listing of open hours in CSV format. By saving it with a .txt extension, the file will be generated for you but won't display for users on the website.";
+	$note = "No-one in their right mind will want to see this on a stats page, but it creates a useful day-by-day listing of open hours in CSV format. By saving it with a 'None' format, data from the file will be never display on the website.";
 	$headers = array("Date","Day","From","To","Status","Exceptions");
 	$rowset = getAlmaHours();
 	if ($rowset) {
-		doTable($id,$title,$note,$headers,$rowset,"txt");
+		doTable($id,$title,$note,$headers,$rowset,"None");
 	}
 
 	$id = "altmetrics_by_month_and_dept";
@@ -67,7 +67,7 @@ require_once('data_functions.php');
 		$newrowset = mergeTables($rowset,$mergeheaders,2,1);
 		$totals = array(1,2,3);	// more/less if you have more/less faculties
 		$newrowset = totalColumn($newrowset,$totals);
-		doTable($id,$title,$note,$headers,$newrowset);
+		doTable($id,$title,$note,$headers,$newrowset,"Radar");
 	}
 
 	$id = "dspace_top_items";
@@ -80,7 +80,7 @@ require_once('data_functions.php');
 	if ($rowset) {
 		array_shift($rowset);
 		$rowset = keepTop($rowset,5);
-		doTable($id,$title,$note,$headers,$rowset);
+		doTable($id,$title,$note,$headers,$rowset,"Table");
 	}
 	
 	$id = "ex_libris_status";
@@ -99,7 +99,7 @@ require_once('data_functions.php');
 		$headers = array("Usergroup","Log-ins");
 		$rowset = array(array_keys($proxy_groups),array_values($rowset['groups']));
 		$rowset = swapColRow($rowset);
-		doTable($id,$title,$note,$headers,$rowset);
+		doTable($id,$title,$note,$headers,$rowset,"Bar");
 	}
 
 	$id = "libraryh3lp_by_month";
@@ -117,7 +117,28 @@ require_once('data_functions.php');
 		$rowset = keepBottom($rowset,12);
 		krsort($rowset);
 		$rowset = totalColumn($rowset,1);
-		doTable($id,$title,$note,$headers,$rowset);
+		doTable($id,$title,$note,$headers,$rowset,"Bar");
+	}
+
+	$id = "mrbs";
+	$title = "Booking a room";
+	$now = date('Y-m-d');
+	$from = strtotime($now . ' -1 year');
+	$from = date('Y-m-d', $from);
+	$to = strtotime($now . ' -1 day');
+	$to = date('Y-m-d', $to);
+	$rowset = getMRBSRows($from,$to);
+	if ($rowset['rooms']) {
+		$note = "In the last year, ";
+		$note .= "<span class='value'>" . $rowset['users'] . "</span>";
+		$note .= " people <a href='".$mrbs_url."'>booked ";
+		$note .= "<span class='value'>" . $rowset['rooms'] . "</span>";
+		$note .= " of our rooms</a> for ";
+		$note .= "<span class='value'>" . $rowset['hours'] . "</span>";
+		$note .= " hours of study and meetings.";
+		$headers = "";
+		$rowset = array();
+		doTable($id,$title,$note,$headers,array());
 	}
 
 	$id = "oai_count";
@@ -148,9 +169,12 @@ require_once('data_functions.php');
 	$headers = array("Year","Month","Number");
 //	$rowset = getScopus();  // Same as above; no need to fetch it from Scopus again!
 	if ($rowset['monthly']) {
-		krsort($rowset['monthly']);
-		$rowset['monthly'] = totalColumn($rowset['monthly'],2);
-		doTable($id,$title,$note,$headers,$rowset['monthly']);
+		$rowset=$rowset['monthly'];
+		krsort($rowset);
+		$rowset = mergeMonthYear($rowset,1,0);
+		$rowset = convertDates($rowset,0,'F Y','M Y');
+		$rowset = totalColumn($rowset,1);
+		doTable($id,$title,$note,$headers,$rowset,"Bar");
 	}
 
 	$id = "wikipedia_articles";

@@ -1,6 +1,6 @@
 LTLstats
 ======
-A php dashboard for displaying statistics harvested by common library APIs
+A php dashboard for displaying statistics harvested by common library APIs, as tables or colourful charts.
 
 May be pronounced "Little Stats". This repository actually contains two interwoven applications:
 
@@ -14,12 +14,16 @@ Separate instructions on each of these below.
 
 Versioning
 ----------
+v. 3.0
+* adds integration with Chart.js
+* adds MRBS connection
+* adds mergeMonthYear and convertDates data functions
+
 v. 2.1
 * adds EZproxy connection
 * styling: safer width code; highlight key values
 
 v. 2.0
-
 * separates the API access from the data display, massively improving pageload time of data display
 * adds functionality to let viewers download data as CSV files
 * bugfix for Scopus connection in December
@@ -27,7 +31,6 @@ v. 2.0
 * adds generic OAI connection
 
 v. 1.1
-
 * reduces redundant code
 * adds Scopus connection
 
@@ -35,7 +38,7 @@ v. 1.0 was the initial code.
 
 LTLstats
 ------------
-Scheduled jobs (eg `to_schedule.php`) connect to various APIs (in `connections/`) to gather and save your libraryland statistics into csv format (in `csvs/`). Caching raw API output (using `cache.php` and storing files in `cache/`) is optional. Cookies are stored in `cookies/`. A web dashboard (`index.php`) with a basic style (`layout.css`) then displays everything in table format. 
+Scheduled jobs (eg `to_schedule.php`) connect to various APIs (in `connections/`) to gather and save your libraryland statistics into csv format (in `csvs/`). Caching raw API output (using `cache.php` and storing files in `cache/`) is optional. Cookies are stored in `cookies/`. A web dashboard (`index.php`) with a basic style (`layout.css.php`) then displays everything in table format or as charts (with `Chart.js` integration).
 
 Currently the connection files available are to:
 
@@ -46,6 +49,7 @@ Currently the connection files available are to:
 * Ex Libris Status page, screenscraped
 * EZproxy audit logs (iff on same server as website)
 * LibraryH3lp REST API
+* MRBS csv reports
 * OAI feeds - total number of items
 * Scopus REST API
 * Wikipedia search API
@@ -54,13 +58,15 @@ Currently the connection files available are to:
 
 1. Give appropriate read/write permissions for the `cache/`, `csvs/`, and `cookies/` directories.
 
-2. Fill out details in config.php. While you're setting up, it's a good idea to keep $use_cached_data = true
+2. To enable bar graphs etc, download the latest version of `Chart.js` from http://www.chartjs.org/
 
-3. Edit your `to_schedule.php` file with whatever modules you want to include. You might have multiple files depending on when or how often you want to retrieve data. Specific paths to Alma reports, Altmetric groups, etc go in here. Here's also where you do advanced fiddling with which columns display and how. (See below.) You can run these pages in a web-browser to pull the data in, and run `index.php` to see the final display for users.
+3. Fill out details in config.php. While you're setting up, it's a good idea to keep $use_cached_data = true
 
-4. When you're satisfied, change your `config.php` to `$use_cached_data = true;` and set up scheduled tasks / cron jobs to run the `to_schedule.php`-type files at your preferred schedule.
+4. Edit your `to_schedule.php` file with whatever modules you want to include. You might have multiple files depending on when or how often you want to retrieve data. Specific paths to Alma reports, Altmetric groups, etc go in here. Here's also where you do advanced fiddling with which columns display and how, and which style of graph/chart if `Chart.js` is enabled. (See below.) You can run these pages in a web-browser to pull the data in, and run `index.php` to see the final display for users.
 
-5. Link users to `index.php`.
+5. When you're satisfied, change your `config.php` to `$use_cached_data = true;` and set up scheduled tasks / cron jobs to run the `to_schedule.php`-type files at your preferred schedule.
+
+6. Link users to `index.php`.
 
 ### A little more advanced ###
 `data_functions.php` contains a bunch of functions to munge and format the data in a table. So then each div can take the raw API data ($rowset) and perform functions to keep only certain columns, display totals, and finally format in a table with headers. Available functions include:
@@ -74,16 +80,18 @@ Currently the connection files available are to:
 * getColumns($rowset, $columns) - for an array $rowset, returns which columns are listed in the array $columns, eg if $columns={0,4} then you'll get the first and fifth columns. Similarly:
 * getRows($rowset, $rows)
 * swapColRow($rowset) - switches your rows into columns and vice versa, eg turning a vertical table into a horizontal one
+* mergeMonthYear($rowset,$month_column,$year_column) - merges a month column and year column into a single date column
+* convertDates($rowset,$column,$from,$to) - converts dates in a given column between formats stated as per http://php.net/manual/en/function.date.php
 * totalColumn($rowset, $columnarray) - creates a "Total" row, summing the values in any column listed in $columnarray
 * matrix($rowset,$groupCol,$valueCol) - the most powerful and clunkily coded. (I'm convinced there's a better way but haven't nutted it out yet.) Imagine you've got a table:
 
-|purple|cars|23|  
-|------|----|-:|  
-|purple|fans| 2|  
-|purple|hats|11|  
-|orange|cars|19|  
-|orange|fans| 6|  
-|orange|hats|42|
+|purple|cars|  23|  
+|:-----|:---|---:|  
+|purple|fans|   2|  
+|purple|hats|  11|  
+|orange|cars|  19|  
+|orange|fans|   6|  
+|orange|hats|  42|
  
 But you want a table:  
 
@@ -98,17 +106,17 @@ So $groupCol is the column number for the values you want in each column groupin
 * mergeTables($rowsetarray,$headers,$groupCol,$valueCol) - creates a matrix (as above) but starting with two or more similarly structured tables ($rowsetarray) and an array of $headers. Eg  
     $rowset[0] = 
 	
-|cars|23|  
-|----|-:|  
-|fans| 2|  
-|hats|11|  
+|cars|  23|  
+|:---|---:|  
+|fans|   2|  
+|hats|  11|  
 
     $rowset[1] =   
 	
-|cars|19|  
-|----|-:|  
-|fans| 6|  
-|hats|42|
+|cars|  19|  
+|:---|---:|  
+|fans|   6|  
+|hats|  42|
 
   $headers = {"purple","orange"}
 
@@ -116,7 +124,9 @@ $valueCol remains the column number for the actual values, so here (23,2,11,etc)
 
 Normal php array functions will work as well, eg sorting. Mix and match according to your original data and desired result. When you're done:
 
-* doTable($id,$title,$note,$headers,$rowset) - displays it for test purposes, and calls a function to save it as a csv file that can be used by `index.php`
+* doTable($id,$title,$note,$headers,$rowset,$format) - displays it for test purposes, and calls a function to save it as a csv file that can be used by `index.php`. If blank, $format defaults to "Table". "None" prevents it displaying on the `index.php`. If Chart.js is enabled, other values can include: "Bar", "Line", "Radar", "Pie", "Doughnut", "Polar".
+
+You may want to edit `legendTemplate` in `Chart.js`. If you do so, note this value occurs multiple times in the code as templates are generated differently depending on the chart type, so you can't just copy/paste your code into all of them!
 
 
 WarningNote
@@ -147,6 +157,5 @@ Potential for development
 
 1. Adding more connections - limited only by API availability (and coding time).
 1. Would be neat if Ex Libris made a status API so screenscraping wasn't necessary. :-)
-1. Using a pie chart plugin eg http://www.chartjs.org/ to make displays even prettier
 
 Time may or may not allow any of these, so happy for anyone else to contribute code along these lines! :-)
