@@ -14,14 +14,6 @@
 		$hours = $hours['open_hour'];
 		$calendar = array();
 		for ($i=-30; $i<90; $i++) {
-//		for ($i=0; $i<1; $i++) {
-			$test = '2015-12-12'; // many weird exceptions
-			$test = '2015-11-03'; // longer hours
-			$test = '2015-10-01'; // standard hours
-			$test = '2015-11-29'; // last Sunday - closed
-			$test = '2015-12-02'; // today - summer hours
-			$test = '2015-12-25'; // Christmas - works (overriding other exceptions)
-//			$date = strtotime($test) + $i*(24*60*60);
 			$date = time() + $i*(24*60*60);
 			$calendar[$i]['date'] = date('Y-m-d', $date);
 			$calendar[$i]['day_of_week'] = strtoupper(date('l', $date));
@@ -55,22 +47,19 @@
 								$calendar[$i]['to_hour'] = "";
 								$calendar[$i]['status'] = "CLOSE";
 								$calendar[$i]['exception'] = "";
-//								echo "<p>Closed.</p>";
 							} else if ($from_hour <= $this_from_hour && $h['status'] == "CLOSE" && $c['status'] == "OPEN") {
 								$calendar[$i]['from_hour'] = $h['to_hour'];
-//								echo "<p>From " . $calendar[$i]['from_hour'] . " to " . $calendar[$i]['to_hour'] . "</p>";
 							} else if ($to_hour >= $this_to_hour && $h['status'] == "CLOSE" && $c['status'] == "OPEN") {
 								$calendar[$i]['to_hour'] = $h['from_hour'];
-//								echo "<p>From " . $calendar[$i]['from_hour'] . " to " . $calendar[$i]['to_hour'] . "</p>";
+							} else if ($from_hour < $this_from_hour && $to_hour > $this_to_hour && $h['status'] == "OPEN" && $c['status'] == "OPEN") {
+								$calendar[$i]['from_hour'] = $h['from_hour'];
+								$calendar[$i]['to_hour'] = $h['to_hour'];
 							} else if ($from_hour < $this_from_hour && $h['status'] == "OPEN" && $c['status'] == "OPEN") {
 								$calendar[$i]['from_hour'] = $h['from_hour'];
-//								echo "<p>From " . $calendar[$i]['from_hour'] . " to " . $calendar[$i]['to_hour'] . "</p>";
 							} else if ($to_hour > $this_to_hour && $h['status'] == "OPEN" && $c['status'] == "OPEN") {
 								$calendar[$i]['to_hour'] = $h['to_hour'];
-//								echo "<p>From " . $calendar[$i]['from_hour'] . " to " . $calendar[$i]['to_hour'] . "</p>";
 							} else {
-//								$calendar[$i]['exception'] = "EXCEPT FOR EXCEPTIONS";
-//								echo "<p><strong>Exception:</strong> " . date('Y-m-d', $from_date) . " &mdash; " . date('Y-m-d', $to_date) . "</p>";
+								$calendar[$i]['exception'] = "EXCEPT FOR EXCEPTIONS";
 							}
 						}
 					}
