@@ -1,45 +1,6 @@
 ﻿<?php
 require_once('data_functions.php');
 
-	$id = "alma_example_1";
-	$title = "New items in Alma";
-	$note = "Link to our <a href='http://example.com/newitems/'>new items list</a>."; // your URL here
-	$headers = array("Year","Month","New items");
-	$path = ""; // eg "/shared/Lincoln/Reports/New Records";
-	$rowset = getAlmaRows($path);
-	if ($rowset) {
-		$columnOrd = array(3,2,8);
-		$rowset = getColumns($rowset,$columnOrd);
-		$rowset = keepBottom($rowset,12);
-		krsort($rowset);
-		$rowset = totalColumn($rowset,2);
-		doTable($id,$title,$note,$headers,$rowset,"Bar");
-	}
-
-	$id = "alma_example_2";
-	$title = "Alma checkout locations";
-	$note = "";
-	$headers = array();
-	$path = array();
-	$path[] = ""; // eg "/shared/Lincoln/Reports/Issues per month at circ desk";
-	$path[] = ""; // eg "/shared/Lincoln/Reports/Issues per month at self-check";
-	$rowset = array();
-	foreach ($path as $p) {
-		$rowset[] = getAlmaRows($p);
-	}
-	if ($rowset) {
-		foreach ($rowset as $s => $set) {
-			$rowset[$s] = keepBottom($set,12);
-			krsort($rowset[$s]);
-		}
-		$mergeheaders = array('Circ desks','Self-checks');
-		$newrowset = mergeTables($rowset,$mergeheaders,5,4);
-		$newrowset = keepRight($newrowset,4);
-		$totals = array(2,3);
-		$newrowset = totalColumn($newrowset,$totals);
-		doTable($id,$title,$note,$headers,$newrowset,"Line");
-	}
-
 	$id = "alma_hours";
 	$title = "Open Hours";
 	$note = "No-one in their right mind will want to see this on a stats page, but it creates a useful day-by-day listing of open hours in CSV format. By saving it with a 'None' format, data from the file will be never display on the website.";
@@ -83,6 +44,46 @@ require_once('data_functions.php');
 		doTable($id,$title,$note,$headers,$rowset,"Table");
 	}
 	
+	$id = "ex_libris_alma";
+	$title = "Alma checkout locations";
+	$note = "";
+	$headers = array();
+	$path = array();
+	$path[] = ""; // eg "/shared/Lincoln/Reports/Issues per month at circ desk";
+	$path[] = ""; // eg "/shared/Lincoln/Reports/Issues per month at self-check";
+	$rowset = array();
+	foreach ($path as $p) {
+		$rowset[] = getAlmaRows($p);
+	}
+	if ($rowset) {
+		foreach ($rowset as $s => $set) {
+			$rowset[$s] = keepBottom($set,12);
+			krsort($rowset[$s]);
+		}
+		$mergeheaders = array('Circ desks','Self-checks');
+		$newrowset = mergeTables($rowset,$mergeheaders,5,4);
+		$newrowset = keepRight($newrowset,4);
+		$totals = array(2,3);
+		$newrowset = totalColumn($newrowset,$totals);
+		doTable($id,$title,$note,$headers,$newrowset,"Line");
+	}
+
+	$id = "ex_libris_primo";
+	$title = "How is Primo used?";
+	$note = "How many searches are performed and how many links are clicked through to fulltext.";
+	$headers = array();
+	$path = ""; // eg "/shared/Primo Lincoln University (New Zealand)/Reports/Searches vs clickthroughs";
+	$rowset = getPrimoRows($path);
+	if ($rowset) {
+		$columnOrd = array(1,2,4);
+		$rowset = getColumns($rowset,$columnOrd);
+		$rowset = matrix($rowset,1,2);
+		$rowset = keepTop($rowset,13);
+		$totals = array(1,2);
+		$rowset = totalColumn($rowset,$totals);
+		doTable($id,$title,$note,$headers,$rowset,"Bar");
+	}
+
 	$id = "ex_libris_status";
 	$title = "How is the library system doing right now?";
 	$note = "<strong><a href='http://primo.example.com/path/to/search.do?vid=LIN'>Primo</a>:</strong> $status_P.$note_P<br/><br/><strong>Alma:</strong> $status_A.$note_A"; // your URL

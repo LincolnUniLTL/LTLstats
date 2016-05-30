@@ -14,6 +14,10 @@ Separate instructions on each of these below.
 
 Versioning
 ----------
+v. 3.1
+* adds Primo Analytics connection (in `exlibris_analytics.php` renamed from `alma.php`)
+* number of Alma/Primo Analytics results can be increased in `config.php`
+
 v. 3.0
 * adds integration with Chart.js
 * adds MRBS connection
@@ -42,10 +46,10 @@ Scheduled jobs (eg `to_schedule.php`) connect to various APIs (in `connections/`
 
 Currently the connection files available are to:
 
-* Alma analytics REST API
 * Alma hours REST API
 * Altmetric REST API
 * DSpace statistics XML view (tested in DSpace 3.1 XMLUI)
+* Ex Libris analytics (Alma analytics REST API and Primo analytics REST API)
 * Ex Libris Status page, screenscraped
 * EZproxy audit logs (iff on same server as website)
 * LibraryH3lp REST API
@@ -146,7 +150,7 @@ Note that the page is scraped once a minute only to avoid overloading the server
 Caveat emptor
 -------------
 
-An important limitation is that LTLstats doesn't currently deal with resumption tokens for Alma data, or give you any warning that the results are incomplete...
+An important limitation is that LTLstats doesn't currently deal with resumption tokens for Alma data, or give you any warning that the results are incomplete... The maximum number of rows to return can be edited in `config.php` though.
 
 The environment this was written for requires backslashes for filepaths eg  
 `$filepath = dirname(__FILE__) . '\\cache\\' . $filename;`  
@@ -157,5 +161,6 @@ Potential for development
 
 1. Adding more connections - limited only by API availability (and coding time).
 1. Would be neat if Ex Libris made a status API so screenscraping wasn't necessary. :-)
+1. Enable categorisation of widgets so users can view a subset depending on interests.
 
 Time may or may not allow any of these, so happy for anyone else to contribute code along these lines! :-)
