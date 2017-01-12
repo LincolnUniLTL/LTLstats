@@ -14,6 +14,9 @@ Separate instructions on each of these below.
 
 Versioning
 ----------
+v. 3.1.1
+* modifies Wikipedia connection to enable reporting on multiple sites
+
 v. 3.1
 * adds Primo Analytics connection (in `exlibris_analytics.php` renamed from `alma.php`)
 * number of Alma/Primo Analytics results can be increased in `config.php`

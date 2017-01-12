@@ -180,14 +180,24 @@ require_once('data_functions.php');
 
 	$id = "wikipedia_articles";
 	$title = "Did you know...";
-	$string = "http://example.com/"; // your URL here
-	$string = '"'.$string.'"';
-	$rowset = getWikiLinks(urlencode($string));
-	if ($rowset['pages']) {
-		$note = "<a href='https://en.wikipedia.org/w/index.php?search=insource%3A" . $string . "&title=Special%3ASearch&go=Go'>";
-		$note .= "<span class='value'>" . $rowset['pages'] . "</span>";
-		$note .= " Wikipedia pages</a>";
-		$note .= " link to research in <a href='http://example.com/'>our institutional repository</a>."; // your URL here
+	$string = "http://hdl.handle.net/10182/";
+	$array = array(
+			array("example.com","http://www.example.com","Our Institutional Repository"),
+			);
+	$rowset = getWikiLinks($array);
+	$note = "";
+	foreach($rowset as $r=>$row) {
+		if ($row[3]) {
+			$note .= "<a href='https://en.wikipedia.org/w/index.php?search=insource%3A%22" . urlencode($row[0]) . "%22&title=Special%3ASearch&go=Go'>";
+			$note .= "<span class='value'>" . $row[3] . "</span>";
+			$note .= " Wikipedia pages</a>";
+			$note .= " link to content in <a href='".$row[1]."'>".$row[2]."</a>.";
+		}
+		if ($r+1<count($rowset)) {
+			$note .= "</p><p>";
+		}
+	}
+	if ($note !="") {
 		$headers = "";
 		$rowset = array();
 		doTable($id,$title,$note,$headers,$rowset);
