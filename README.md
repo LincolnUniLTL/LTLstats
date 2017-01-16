@@ -14,6 +14,10 @@ Separate instructions on each of these below.
 
 Versioning
 ----------
+v. 3.2
+* adds SuperSaaS connection - see note in Troubleshooting below
+* merges two Scopus examples in `to_schedule.php`
+
 v. 3.1.1
 * modifies Wikipedia connection to enable reporting on multiple sites
 
@@ -22,7 +26,7 @@ v. 3.1
 * number of Alma/Primo Analytics results can be increased in `config.php`
 
 v. 3.0
-* adds integration with Chart.js
+* adds integration with Chart.js including downloading as PNG
 * adds MRBS connection
 * adds mergeMonthYear and convertDates data functions
 
@@ -158,6 +162,15 @@ An important limitation is that LTLstats doesn't currently deal with resumption 
 The environment this was written for requires backslashes for filepaths eg  
 `$filepath = dirname(__FILE__) . '\\cache\\' . $filename;`  
 If your environment is different you'll need to do a find-replace or some such. Enjoy!
+
+Troubleshooting
+---------------
+
+* *SuperSaaS*: We had trouble accessing supersaas.com, something to do with IPv6. If you have similar problems, try adding
+`curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);`
+into the `getData` function in `data_functions.php`
+
+* *Blank charts* using Chart.js - make sure your `$id`s don't have any hyphens in them. Underscores are fine.
 
 Potential for development
 -------------------------

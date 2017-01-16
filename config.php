@@ -1,6 +1,6 @@
 ﻿<?php
 /* Contacts */
-$version = 'LTLStats/3.1.1';
+$version = 'LTLStats/3.2';
 $site_url = '';				// the URL where you'll display this dashboard
 $contact_email = ''; 		// your contact address
 
@@ -40,7 +40,7 @@ $alma_hours_url = $alma_domain . '/almaws/v1/conf/open-hours';
 $alma_hours_apikey = '';	// your API key for Alma Hours
 $alma_hours_scope = ''; 	// eg 'LIU';
 
-$altmetric_url = 'http://www.altmetric.com/api/v1/summary_report/at?num_results=100&key=';
+$altmetric_url = 'https://www.altmetric.com/api/v1/summary_report/at?num_results=100&key=';
 $altmetric_apikey = '';		// your API key for Altmetric
 
 $dspace_url = ''; 			// eg 'https://researcharchive.lincoln.ac.nz/statistics?XML';
@@ -61,4 +61,10 @@ $scopus_url = 'http://api.elsevier.com/content/affiliation/affiliation_id/';
 $scopus_apikey = '';		// your API key for Scopus
 $scopus_instid = ''; 		// for your institution eg '60006625';
 
+$supersaas_schedules = array(	
+	array('123', 'Staff'),	// Schedule ID number and display name
+	array('678', 'Student')	// (ID is at end of URL found from Dashboard -> Configure )
+	);
+$supersaas_account = '';	// your account name (admin username)
+$supersaas_password = '';	// your admin password
 ?>

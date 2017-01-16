@@ -151,30 +151,39 @@ require_once('data_functions.php');
 		doTable($id,$title,$note,$headers,array());
 	}
 	
-	$id = "scopus_total";
-	$title = "Scopus";
+	$id = "scopus";
+	$title = "Recent papers indexed in Scopus";
 	$rowset = getScopus();
+	$note = "";
 	if ($rowset['authors']) {
 		$doclink = $proxy . "http://www.scopus.com/results/results.url?src=s&sot=aff&s=%28AF-ID%28" . $scopus_instid . "%29%29";
-		$note = '<span class='value'>'.$rowset['authors'].'</span> authors ';
+		$note .= '<span class="value">'.$rowset['authors'].'</span> authors ';
 		$note .= 'from '.$rowset['institution'].' ';
-		$note .= 'have authored <a href="'.$doclink.'"><span class='value'>'.$rowset['documents'].'</span> research papers</a> ';
-		$note .= 'indexed in Scopus.';
+		$note .= 'have authored <a href="'.$doclink.'"><span class="value">'.$rowset['documents'].'</span> research papers</a> ';
+		$note .= 'indexed in Scopus. ';
 		$headers = "";
-		doTable($id,$title,$note,$headers,array());
+	}
+	if ($rowset['monthly']) {
+		$note .= "Note only papers which include a publication month are counted below.";
+		$rowset1=$rowset['monthly'];
+		krsort($rowset1);
+		$rowset1 = mergeMonthYear($rowset1,1,0);
+		$rowset1 = convertDates($rowset1,0,'F Y','M Y');
+		$rowset1 = totalColumn($rowset1,1);
+		$headers = array("Month","Number");
+	}
+	if ($rowset['monthly'] || $rowset['authors']) {
+		doTable($id,$title,$note,$headers,$rowset1,"Bar");
 	}
 
-	$id = "scopus_monthly";
-	$title = "Recent papers indexed in Scopus";
-	$note = "Note only papers which include a publication month are counted.";
-	$headers = array("Year","Month","Number");
-//	$rowset = getScopus();  // Same as above; no need to fetch it from Scopus again!
-	if ($rowset['monthly']) {
-		$rowset=$rowset['monthly'];
-		krsort($rowset);
-		$rowset = mergeMonthYear($rowset,1,0);
-		$rowset = convertDates($rowset,0,'F Y','M Y');
-		$rowset = totalColumn($rowset,1);
+	$id = "supersaas";
+	$title = "Booking a workshop";
+	$start_date = date('Y-m-d H:i:s',mktime('00','00','00',date('n')-6,date('j'),date('Y'))); // last 6 months - NB limit is 1000 bookings per schedule
+	$rowset = getSuperSaas($start_date);
+	if ($rowset) {
+		$note = "Bookings made in the last 6 months:";
+		$rowset = totalColumn($rowset,array(1,2,3,4));
+		$headers = array("","Workshops","Users","Total&nbsp;bookings","Waitlisted");
 		doTable($id,$title,$note,$headers,$rowset,"Bar");
 	}
 
