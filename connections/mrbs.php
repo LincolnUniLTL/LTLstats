@@ -16,7 +16,7 @@
 		$result = csv2array($result);
 		$rows = count($result);
 		$columns = count($result[0]);
-		$rowset['rooms'] = $columns - 3;
+		$rowset['rooms'] = ($columns - 3) / 2;
 		$hours = $result[$rows-2][$columns-1];
 		$hours = preg_replace('/"([0-9.]*)0"/','$1',$hours);
 		$hours = preg_replace('/\.0/','',$hours);
