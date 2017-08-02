@@ -31,6 +31,19 @@ require_once('data_functions.php');
 		doTable($id,$title,$note,$headers,$newrowset,"Radar");
 	}
 
+	$id = "careerhub";
+	$title = "Career advice";
+	$start_date = date("j-M-Y", time() - 60*60*24*31);
+	$end_date = date("j-M-Y", time() - 60*60*24*1);
+	$report = 'Appointments/111?startDate='.$start_date.'&endDate='.$end_date;
+	$rowset = getCareerhubData($report);
+	$headers = array("Topic","Appointments");
+	if ($rowset) {
+		$note = "People attended <a href='https://example.com/'>appointments with our Careers and Employment Advisor</a> on the following topics in the last 30 days.";
+		array_pop($rowset);
+		doTable($id,$title,$note,$headers,$rowset,"Bar");
+	}
+	
 	$id = "dspace_top_items";
 	$title = "Top 5 DSpace items";
 	$note = "Top 5 most-viewed items on <a href='https://example.com/statistics'>our institutional archive</a> this calendar month:";	// your URL
@@ -69,19 +82,19 @@ require_once('data_functions.php');
 	}
 
 	$id = "ex_libris_primo";
-	$title = "How is Primo used?";
-	$note = "How many searches are performed and how many links are clicked through to fulltext.";
-	$headers = array();
-	$path = ""; // eg "/shared/Primo Lincoln University (New Zealand)/Reports/Searches vs clickthroughs";
+	$title = "What are people searching for in Primo?";
+	$note = "10 most popular search terms in the last month.";
+	$headers = array("Search terms", "Searches");
+	$path = ""; // eg "/shared/Primo Lincoln University (New Zealand)/Reports/3. Ten most popular searches in the last 30 days";
 	$rowset = getPrimoRows($path);
 	if ($rowset) {
-		$columnOrd = array(1,2,4);
+		$columnOrd = array(1,2);
 		$rowset = getColumns($rowset,$columnOrd);
-		$rowset = matrix($rowset,1,2);
-		$rowset = keepTop($rowset,13);
-		$totals = array(1,2);
+		$rowset = sortByColumn($rowset, 1);
+		krsort($rowset);
+		$totals = array(1);
 		$rowset = totalColumn($rowset,$totals);
-		doTable($id,$title,$note,$headers,$rowset,"Bar");
+		doTable($id,$title,$note,$headers,$rowset,"Wordle");
 	}
 
 	$id = "ex_libris_status";

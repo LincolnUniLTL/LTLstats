@@ -14,6 +14,12 @@ Separate instructions on each of these below.
 
 Versioning
 ----------
+v. 3.3
+* adds integration with wordcloud2.js
+* adds CareerHub connection
+* adds function to sort data by selected columns
+* BUGFIX: deals with ampersands in Ex Libris APIs
+
 v. 3.2
 * adds SuperSaaS connection - see note in Troubleshooting below
 * merges two Scopus examples in `to_schedule.php`
@@ -55,6 +61,7 @@ Currently the connection files available are to:
 
 * Alma hours REST API
 * Altmetric REST API
+* CareerHub API with OAuth bearer token
 * DSpace statistics XML view (tested in DSpace 3.1 XMLUI)
 * Ex Libris analytics (Alma analytics REST API and Primo analytics REST API)
 * Ex Libris Status page, screenscraped
@@ -69,11 +76,11 @@ Currently the connection files available are to:
 
 1. Give appropriate read/write permissions for the `cache/`, `csvs/`, and `cookies/` directories.
 
-2. To enable bar graphs etc, download the latest version of `Chart.js` from http://www.chartjs.org/
+2. To enable bar graphs etc, download the latest version of `Chart.js` from http://www.chartjs.org/ and `wordcloud2.js` from http://timdream.org/wordcloud2.js/ into the `js/` directory
 
 3. Fill out details in config.php. While you're setting up, it's a good idea to keep $use_cached_data = true
 
-4. Edit your `to_schedule.php` file with whatever modules you want to include. You might have multiple files depending on when or how often you want to retrieve data. Specific paths to Alma reports, Altmetric groups, etc go in here. Here's also where you do advanced fiddling with which columns display and how, and which style of graph/chart if `Chart.js` is enabled. (See below.) You can run these pages in a web-browser to pull the data in, and run `index.php` to see the final display for users.
+4. Edit your `to_schedule.php` file with whatever modules you want to include. You might have multiple files depending on when or how often you want to retrieve data. Specific paths to Alma reports, Altmetric groups, etc go in here. Here's also where you do advanced fiddling with which columns display and how, and which style of graph/chart if `Chart.js` and/or `wordcloud2.js` is enabled. (See below.) You can run these pages in a web-browser to pull the data in, and run `index.php` to see the final display for users.
 
 5. When you're satisfied, change your `config.php` to `$use_cached_data = true;` and set up scheduled tasks / cron jobs to run the `to_schedule.php`-type files at your preferred schedule.
 
@@ -84,6 +91,7 @@ Currently the connection files available are to:
 
 * csv2array($string) - turns a CSV table into an array
 * obj2arr($object) - turns an object into an array
+* sortByColumn($array,$n) - sorts an array by the column with index $n (usually $n=1 gives you the second column)
 * keepRight($array,$n) - returns the rightmost $n columns of an array, eg where $n=1 you'll get the last column only. Similarly:
 * keepLeft($array,$n)
 * keepTop($array,$n)
@@ -135,7 +143,7 @@ $valueCol remains the column number for the actual values, so here (23,2,11,etc)
 
 Normal php array functions will work as well, eg sorting. Mix and match according to your original data and desired result. When you're done:
 
-* doTable($id,$title,$note,$headers,$rowset,$format) - displays it for test purposes, and calls a function to save it as a csv file that can be used by `index.php`. If blank, $format defaults to "Table". "None" prevents it displaying on the `index.php`. If Chart.js is enabled, other values can include: "Bar", "Line", "Radar", "Pie", "Doughnut", "Polar".
+* doTable($id,$title,$note,$headers,$rowset,$format) - displays it for test purposes, and calls a function to save it as a csv file that can be used by `index.php`. If blank, $format defaults to "Table". "None" prevents it displaying on the `index.php`. If `Chart.js` is enabled, other values can include: "Bar", "Line", "Radar", "Pie", "Doughnut", "Polar". If `wordcloud2.js` is enabled, you can use "Wordle".
 
 You may want to edit `legendTemplate` in `Chart.js`. If you do so, note this value occurs multiple times in the code as templates are generated differently depending on the chart type, so you can't just copy/paste your code into all of them!
 

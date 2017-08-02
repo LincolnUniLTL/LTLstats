@@ -3,7 +3,8 @@
 	<head>
 		<title>LTLstats</title>
 		<link rel="stylesheet" type="text/css" href="layout.css.php"/>
-		<script src="<?=$js_file;?>" type="text/javascript"></script>
+		<script src="<?=$js['chart.js'];?>" type="text/javascript"></script>
+		<script src="<?=$js['wordcloud2.js'];?>" type="text/javascript"></script>
 	</head>
 	<body>
 <?php
@@ -57,7 +58,7 @@
 			$height=1.618;
 		} elseif ($format=="Bar") {
 			$chartset = swapColRow($rowset);
-			$width=round(count($chartset[0])*count($chartset)/12);
+			$width=round(count($chartset[0])*count($chartset)/10);
 			$height=1.618;
 		} elseif ($format=="Pie" || $format=="Doughnut") {
 			$chartset = $rowset;
@@ -76,6 +77,10 @@
 			$width_row1 = round(strlen(implode("     ",$rowset[1]))/15); // where the CSS defines .width-1 as 15em
 			$width = max($width_header,$width_row1);
 			$height = 1;
+		} elseif ($format =="Wordle") {
+			$chartset = $rowset;
+			$width = round(count($chartset)/4);
+			$height=$width*.7;
 		} else {
 			$format = "None";
 		}
@@ -87,14 +92,47 @@
 		<div class='statdiv width-<?=$width?>' id='<?=$id?>'>
 			<h4><?=$title?></h4>
 			<p><?=$note?></p>
-<?	/* If there's a chart, create a canvas and script for it */
-		if ($format!="Table" && $format!="None" && file_exists($js_file)) {
+<?	/* If there's a chart (and associated javascript), create a canvas and script for it */
+		if ($format!="Table" && $format!="None" && file_exists($js['chart.js'])) {
 			$this_colour = rand(0,count($darkChart)-1);
 ?>
-			<canvas id='<?=$id?>-chart' height='<?=$height*100?>' width='<?=$width*100?>'></canvas>
+			<canvas id='<?=$id?>-chart' height='<?=round($height*150)?>' width='<?=round($width*150)?>'></canvas>
 			<script>
+<?		/* Wordles are special */
+			if ($format=="Wordle" && file_exists($js['wordcloud2.js'])) {
+				$maxlength = 1;
+				array_shift($chartset);
+				array_pop($chartset);
+				/*truncate ridiculously long search terms*/
+				foreach($chartset as $c => $term) {
+					$words = explode(" ", $term[0]);
+					if (count($words) > 4) {
+						$words = array_slice($words,0,4);
+						$chartset[$c][0] = implode(" ",$words) . " [...]";
+					}
+				}
+?>
+				var <?=$id?>Data = {list: [
+<?				foreach ($chartset as $c) {
+					if (strlen($c[0])*$c[1] > $maxlength) {
+						$maxlength = strlen($c[0])*$c[1];
+					}
+					echo "				[";
+					echo '"'.$c[0].'"';
+					echo ", ";
+					echo $c[1];
+					echo "],\n";
+				}
+?>
+				],
+				weightFactor: <?=round($width*180)/$maxlength?>,
+				gridSize: 5,
+				drawOutOfBound: false,
+				maskGapWidth: 0.1,
+				rotateRatio: .9
+				};
 <? 		/* Line, Bar, and Radar charts have their data in a certain format */
-			if ($format=="Line" || $format=="Bar" || $format=="Radar") { 
+		} elseif ($format=="Line" || $format=="Bar" || $format=="Radar") { 
 				$chartlabels = $chartset[0];
 				array_shift($chartset);
 				array_shift($chartlabels);
@@ -155,15 +193,23 @@
 					},
 <? 				} ?>
 				]
-<?	/* Every chart needs a chartload instruction */
+<?
 			}
-		$chartload[] = 'var ctx = document.getElementById("'.$id.'-chart").getContext("2d");
-		myChart = new Chart(ctx).'.$format.'('.$id.'Data, {responsive : true, onAnimationComplete: function(){if(!document.getElementById("'.$id.'PNG")) {var myPNG = this.toBase64Image(); var pngHolder = document.getElementById("'.$id.'-chart").parentNode.childNodes[14]; var pngLink = document.createElement("span"); pngLink.id = "'.$id.'PNG"; pngLink.innerHTML = "<a download=\''.$id.'.png\' href=\'" + myPNG + "\'>PNG</a>"; pngHolder.appendChild(pngLink);}}});
-		var location = document.getElementById("'.$id.'-chart");
-		var legendHolder = document.createElement("div");
-		legendHolder.innerHTML = myChart.generateLegend();
-		location.parentNode.insertBefore(legendHolder,location);
-'
+	/* Wordles are special */
+		if ($format=="Wordle") {
+			$chartload[] = 'var ctx = document.getElementById("'.$id.'-chart");
+			ctx.style.width = ctx.parentNode.firstElementChild.offsetWidth+"px";
+			WordCloud(ctx, '.$id.'Data);';
+		} else {
+	/* Every other chart needs a chartload instruction */
+			$chartload[] = 'var ctx = document.getElementById("'.$id.'-chart").getContext("2d");
+			myChart = new Chart(ctx).'.$format.'('.$id.'Data, {responsive : true, onAnimationComplete: function(){if(!document.getElementById("'.$id.'PNG")) {var myPNG = this.toBase64Image(); var pngHolder = document.getElementById("'.$id.'-chart").parentNode.childNodes[14]; var pngLink = document.createElement("span"); pngLink.id = "'.$id.'PNG"; pngLink.innerHTML = "<a download=\''.$id.'.png\' href=\'" + myPNG + "\'>PNG</a>"; pngHolder.appendChild(pngLink);}}});
+			var location = document.getElementById("'.$id.'-chart");
+			var legendHolder = document.createElement("div");
+			legendHolder.innerHTML = myChart.generateLegend();
+			location.parentNode.insertBefore(legendHolder,location);
+			';
+		}
 ?>
 			</script>
 			<noscript>
@@ -197,7 +243,8 @@
  			<p class='modified'>As of: <?=$timestamp?></p>
 <?	if ($format && $format!="None" && $rowset[0][1]) { ?>
 			<p class='download'>
-				Save as: <a href='<?=$csv_download_folder . $id . ".csv";?>'>CSV</a>
+				<span>Save as: </span>
+				<span><a href='<?=$csv_download_folder . $id . ".csv";?>'>CSV</a></span>
 			</p>
 <?	} ?>
 		</div>
@@ -205,13 +252,15 @@
 	}
 	}
 ?>
-
+</div>
+<div style="clear:both;"></div>
 		<script>
 		window.onload = function(){
 <? foreach ($chartload as $c) {
 	echo $c;
 }
 ?>
+			init();
 		}
 		</script>
 	</body>

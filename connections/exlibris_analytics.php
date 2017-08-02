@@ -16,6 +16,7 @@
 	}
 
 	function decodeExLibris($result) {
+		$result = str_replace(array("&amp;", "&"), array("&", "&amp;"), $result);
 		$XML = simplexml_load_string($result);
 		$XML->registerXPathNamespace('rowset', 'urn:schemas-microsoft-com:xml-analysis:rowset');
 		if ($XML->xpath('/report/QueryResult/ResultXml/rowset:rowset')) {

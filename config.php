@@ -1,6 +1,6 @@
 ﻿<?php
 /* Contacts */
-$version = 'LTLStats/3.2';
+$version = 'LTLStats/3.3';
 $site_url = '';				// the URL where you'll display this dashboard
 $contact_email = ''; 		// your contact address
 
@@ -24,7 +24,8 @@ $darkChart = array('#4aaa42','#0069b4','#a877b2','#b94d30','#261c02');
 $paleChart = array("rgba(179,216,140,0.2)","rgba(178,206,231,0.2)","rgba(181,178,217,0.2)","rgba(255,221,0,0.2)","rgba(218,218,218,0.2)");
 
 /* Charts */
-$js_file = '';				// eg 'Chart.js' - download from http://www.chartjs.org/
+$js['chart.js'] = '';		// eg 'js/Chart.js' - download from http://www.chartjs.org/
+$js['wordcloud2.js'] = '';	// eg 'js/wordcloud2.js' - download from http://timdream.org/wordcloud2.js/
 
 /* Access */
 $proxy = '';				// eg 'http://ezproxy.lincoln.ac.nz/login?url=';
@@ -67,4 +68,11 @@ $supersaas_schedules = array(
 	);
 $supersaas_account = '';	// your account name (admin username)
 $supersaas_password = '';	// your admin password
+
+$careerhub_url = '';		// eg 'https://careerhub.lincoln.ac.nz/';
+$careerhub_host = '';		// eg 'careerhub.lincoln.ac.nz';
+$careerhub_id = ''			// provided by CareerHub Support
+$careerhub_secret = '';		// provided by CareerHub Support
+$careerhub_scope = '';		// provided by CareerHub Support
+
 ?>

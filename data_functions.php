@@ -2,6 +2,7 @@
 require_once('cache.php');
 require_once($connections_folder.'alma_hours.php');
 require_once($connections_folder.'altmetric.php');
+require_once($connections_folder.'careerhub.php');
 require_once($connections_folder.'dspace.php');
 require_once($connections_folder.'exlibris_analytics.php');
 require_once($connections_folder.'exlibris_status.php');
@@ -10,6 +11,7 @@ require_once($connections_folder.'libraryh3lp.php');
 require_once($connections_folder.'mrbs.php');
 require_once($connections_folder.'oai.php');
 require_once($connections_folder.'scopus.php');
+require_once($connections_folder.'supersaas.php');
 require_once($connections_folder.'wikipedia.php');
 
 /* Formatting functions */
@@ -34,6 +36,16 @@ require_once($connections_folder.'wikipedia.php');
 		return $array;
 	}
 
+	function sortByColumn($array,$c) {
+		usort($array, build_sorter($c));
+		return $array;
+	}
+	function build_sorter($c) {
+		return function ($a, $b) use ($c) {
+			return strnatcmp($a[$c], $b[$c]);
+		};
+	}
+	
 	function keepRight($array,$remainder) {
 		foreach ($array as $r => $row) {
 			if (!is_array($row)) {
@@ -318,7 +330,9 @@ require_once($connections_folder.'wikipedia.php');
 		echo "		<div class='statdiv narrow' id='$id'>\n";
 		echo "			<h4>$title</h4>\n";
 		echo "			<p>$note</p>\n";
-		$rowset = formatTable($rowset,$headers);
+		if ($rowset != array()) {
+			$rowset = formatTable($rowset,$headers);
+		}
 		saveTable($id,$title,$note,$rowset,$format);
 		echo "		</div>\n";
 	}
