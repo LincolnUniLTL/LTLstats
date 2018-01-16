@@ -14,6 +14,9 @@ Separate instructions on each of these below.
 
 Versioning
 ----------
+v. 3.4
+* converts exlibris_status.php connection to use REST API instead of screenscraping
+
 v. 3.3
 * adds integration with wordcloud2.js
 * adds CareerHub connection
@@ -64,7 +67,7 @@ Currently the connection files available are to:
 * CareerHub API with OAuth bearer token
 * DSpace statistics XML view (tested in DSpace 3.1 XMLUI)
 * Ex Libris analytics (Alma analytics REST API and Primo analytics REST API)
-* Ex Libris Status page, screenscraped
+* Ex Libris Status page (REST API)
 * EZproxy audit logs (iff on same server as website)
 * LibraryH3lp REST API
 * MRBS csv reports
