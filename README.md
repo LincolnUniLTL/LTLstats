@@ -14,6 +14,9 @@ Separate instructions on each of these below.
 
 Versioning
 ----------
+v. 4.0
+* adds tag functionality to widgets, so users can display only widgets on a particular topic. NOTE: this functionality required a change to the data structure of the CSVs, and the structure of the stanzas in `to_schedule.php` that create them. To upgrade, you'll need to update the structures in `to_schedule.php`, then delete the existing CSVs, copy across all the new code, and re-run `to_schedule.php` to create the new CSVs.
+
 v. 3.4
 * converts exlibris_status.php connection to use REST API instead of screenscraping
 
@@ -75,17 +78,17 @@ Currently the connection files available are to:
 * Scopus REST API
 * Wikipedia search API
 
-### Getting started###
+### Getting started ###
 
 1. Give appropriate read/write permissions for the `cache/`, `csvs/`, and `cookies/` directories.
 
-2. To enable bar graphs etc, download the latest version of `Chart.js` from http://www.chartjs.org/ and `wordcloud2.js` from http://timdream.org/wordcloud2.js/ into the `js/` directory
+2. To enable bar graphs etc, download the latest version of `Chart.js` from http://www.chartjs.org/ and `wordcloud2.js` from http://timdream.org/wordcloud2.js/ into the `js/` directory. LTLstats has been developed using Chart.js v. 1.0.2 and wordcloud2.js v. 1.0.4
 
-3. Fill out details in config.php. While you're setting up, it's a good idea to keep $use_cached_data = true
+3. Fill out details in `config.php`. While you're setting up, it's a good idea to keep `$use_cached_data = true`
 
-4. Edit your `to_schedule.php` file with whatever modules you want to include. You might have multiple files depending on when or how often you want to retrieve data. Specific paths to Alma reports, Altmetric groups, etc go in here. Here's also where you do advanced fiddling with which columns display and how, and which style of graph/chart if `Chart.js` and/or `wordcloud2.js` is enabled. (See below.) You can run these pages in a web-browser to pull the data in, and run `index.php` to see the final display for users.
+4. Edit your `to_schedule.php` file with whatever modules you want to include. You might have multiple files depending on when or how often you want to retrieve data. Specific paths to Alma reports, Altmetric groups, etc go in here. The `$widget` array determines final display: id (name of csv file, div id, and order widgets display on the page (alphabetically)); title (title of widget); note (optional: any text you want to display); headers (technically optional but highly functional for any tabular/chart data); format (optional, defaults to "Table"; "None" prevents it displaying on `index.php`. If `Chart.js` is enabled, other values can include: "Bar", "Line", "Radar", "Pie", "Doughnut", "Polar". If `wordcloud2.js` is enabled, you can use "Wordle"); tags (optional categories). `$rowset` can be further manipulated/tidied with more advanced functions (see below). To test `to_schedule.php`, run it in a web-browser to pull the data in, then run `index.php` to see the final display for users.
 
-5. When you're satisfied, change your `config.php` to `$use_cached_data = true;` and set up scheduled tasks / cron jobs to run the `to_schedule.php`-type files at your preferred schedule.
+5. When you're satisfied, change your `config.php` to `$use_cached_data = false;` and set up scheduled tasks / cron jobs to run the `to_schedule.php` file(s) at your preferred schedule.
 
 6. Link users to `index.php`.
 
@@ -146,7 +149,7 @@ $valueCol remains the column number for the actual values, so here (23,2,11,etc)
 
 Normal php array functions will work as well, eg sorting. Mix and match according to your original data and desired result. When you're done:
 
-* doTable($id,$title,$note,$headers,$rowset,$format) - displays it for test purposes, and calls a function to save it as a csv file that can be used by `index.php`. If blank, $format defaults to "Table". "None" prevents it displaying on the `index.php`. If `Chart.js` is enabled, other values can include: "Bar", "Line", "Radar", "Pie", "Doughnut", "Polar". If `wordcloud2.js` is enabled, you can use "Wordle".
+* doTable($rowset,$widget) - displays it for test purposes, and calls a function to save it as a csv file that can be used by `index.php`. If blank, $format defaults to "Table". "None" prevents it displaying on the `index.php`. If `Chart.js` is enabled, other values can include: "Bar", "Line", "Radar", "Pie", "Doughnut", "Polar". If `wordcloud2.js` is enabled, you can use "Wordle".
 
 You may want to edit `legendTemplate` in `Chart.js`. If you do so, note this value occurs multiple times in the code as templates are generated differently depending on the chart type, so you can't just copy/paste your code into all of them!
 
@@ -187,7 +190,7 @@ Potential for development
 -------------------------
 
 1. Adding more connections - limited only by API availability (and coding time).
-1. Would be neat if Ex Libris made a status API so screenscraping wasn't necessary. :-)
-1. Enable categorisation of widgets so users can view a subset depending on interests.
+2. 'Last updated' date is the time the scheduled job last ran (even if the data source is down so the job is only pulling data from the cache). Ideally it would be the time the data was last successfully fetched from the source.
+3. Tidy `to_schedule.php` and `connections` to try and bury as much of the advanced formatting into the connections as possible....
 
 Time may or may not allow any of these, so happy for anyone else to contribute code along these lines! :-)

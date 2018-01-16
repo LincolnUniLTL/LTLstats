@@ -5,6 +5,7 @@
 		<link rel="stylesheet" type="text/css" href="layout.css.php"/>
 		<script src="<?=$js['chart.js'];?>" type="text/javascript"></script>
 		<script src="<?=$js['wordcloud2.js'];?>" type="text/javascript"></script>
+		<script src="<?=$js['tags'];?>" type="text/javascript"></script>
 	</head>
 	<body>
 <?php
@@ -49,8 +50,15 @@
 		$timestamp = strip_quotes(fgets($handle));
 		$note = strip_quotes(fgets($handle));
 		$format = preg_replace('/Display as: ([^,]*),*/','$1',strip_quotes(fgets($handle)));
+		$tags = strip_quotes(fgets($handle));
 		$file = fread($handle, filesize($filepath));
 		fclose($handle);
+		if (substr($tags,0,6) == "Tags: ") {
+			$tags = explode(", ",substr($tags,6));
+		} else {
+			$file = $tags . $file;
+			$tags = "";
+		}
 		$rowset = csv2array($file);
 		if ($format=="Line") {
 			$chartset = swapColRow($rowset);
@@ -89,7 +97,13 @@
 /* START "If it's displayable, create a div for it" */
 		if ($format && $format!="None") {
 ?>
-		<div class='statdiv width-<?=$width?>' id='<?=$id?>'>
+		<div class='statdiv width-<? echo $width;
+			if ($tags) {
+				foreach ($tags as $t) {
+					$t = str_replace(" ","_",$t);
+					echo ' tagged_'.$t;
+				}
+			}?>' id='<?=$id?>'>
 			<h4><?=$title?></h4>
 			<p><?=$note?></p>
 <?	/* If there's a chart (and associated javascript), create a canvas and script for it */
@@ -201,9 +215,9 @@
 			ctx.style.width = ctx.parentNode.firstElementChild.offsetWidth+"px";
 			WordCloud(ctx, '.$id.'Data);';
 		} else {
-	/* Every other chart needs a chartload instruction */
+	/* Every other chart needs its own chartload instruction */
 			$chartload[] = 'var ctx = document.getElementById("'.$id.'-chart").getContext("2d");
-			myChart = new Chart(ctx).'.$format.'('.$id.'Data, {responsive : true, onAnimationComplete: function(){if(!document.getElementById("'.$id.'PNG")) {var myPNG = this.toBase64Image(); var pngHolder = document.getElementById("'.$id.'-chart").parentNode.childNodes[14]; var pngLink = document.createElement("span"); pngLink.id = "'.$id.'PNG"; pngLink.innerHTML = "<a download=\''.$id.'.png\' href=\'" + myPNG + "\'>PNG</a>"; pngHolder.appendChild(pngLink);}}});
+			myChart = new Chart(ctx).'.$format.'('.$id.'Data, {responsive : true, onAnimationComplete: function(){if(!document.getElementById("'.$id.'PNG")) {var myPNG = this.toBase64Image(); var pngHolder = document.getElementById("'.$id.'-chart").parentNode.children[8]; var pngLink = document.createElement("span"); pngLink.id = "'.$id.'PNG"; pngLink.innerHTML = "<a download=\''.$id.'.png\' href=\'" + myPNG + "\'>PNG</a>"; pngHolder.appendChild(pngLink);}}});
 			var location = document.getElementById("'.$id.'-chart");
 			var legendHolder = document.createElement("div");
 			legendHolder.innerHTML = myChart.generateLegend();
@@ -241,12 +255,23 @@
 	}
 ?>
  			<p class='modified'>As of: <?=$timestamp?></p>
-<?	if ($format && $format!="None" && $rowset[0][1]) { ?>
+			<p class='tags'><?
+	if ($tags) {
+		echo "\n				<span>Tags: </span>";
+		foreach ($tags as $t) {
+			$s = str_replace(" ","_",$t);
+			$t = str_replace(" ","&nbsp;",$t);
+			echo "\n				<span class='tag tag_$s'>$t</span>";
+		}
+	}
+
+ 			?></p>
 			<p class='download'>
+<?	if ($format && $format!="None" && $rowset[0][1]) { ?>
 				<span>Save as: </span>
 				<span><a href='<?=$csv_download_folder . $id . ".csv";?>'>CSV</a></span>
-			</p>
 <?	} ?>
+			</p>
 		</div>
 <?
 	}

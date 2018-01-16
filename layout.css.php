@@ -109,33 +109,98 @@
 }
 
 <?php
-	foreach (glob($csv_folder.'*.csv') as $filepath) {
-		$id = substr_replace($filepath, '', 0, strlen($csv_folder));
-		$divIds[] = preg_replace('/\.csv/', '', $id);
-	}
-	
-	foreach ($divIds as $k => $d) {
-		$k = $k % count($darkColours);
-		$thisDark = $darkColours[$k];
-		$thisPale = $paleColours[$k];
-		echo "#$d {\n";
-		echo "	border: .2em solid #$thisDark;\n";
-		echo "	background-color: #$thisPale;\n";
-		echo "}\n\n";
-		echo "#$d h4 {\n";
-		echo "  background-color: #$thisDark;\n";
-		echo "}\n\n";
+	if ($widgetColour === 'sequential') {
+		foreach (glob($csv_folder.'*.csv') as $filepath) {
+			$id = substr_replace($filepath, '', 0, strlen($csv_folder));
+			$divIds[] = preg_replace('/\.csv/', '', $id);
+		}
 		
-		echo "#$d span.value {\n";
-		echo "	border: .1em solid #$thisDark;\n";
-		echo "	color: #$thisDark;\n";
-		echo "}\n\n";
+		foreach ($divIds as $k => $d) {
+			$k = $k % count($darkColours);
+			$thisDark = $darkColours[$k];
+			$thisPale = $paleColours[$k];
+			echo "#$d {\n";
+			echo "	border: .2em solid $thisDark;\n";
+			echo "	background-color: $thisPale;\n";
+			echo "}\n\n";
+			echo "#$d h4 {\n";
+			echo "  background-color: $thisDark;\n";
+			echo "}\n\n";
+			
+			echo "#$d span.value {\n";
+			echo "	border: .1em solid $thisDark;\n";
+			echo "	color: $thisDark;\n";
+			echo "}\n\n";
+
+			echo "#$d canvas {\n";
+			echo "	border: .1em solid $thisDark;\n";
+			echo "}\n\n";
+		}
+	} else {
+?>
+.statdiv {
+	border: .2em solid black;
+	background-color: #eeeeee;
+}
+
+.statdiv h4 {
+	background-color: black;
+}
+
+.statdiv span.value {
+	border: .1em solid black;
+	color: black;
+}
+
+.statdiv canvas {
+	border: .1em solid black;
+}
+<?		
 	}
 ?>
 
-p.download, p.modified {
+p.modified {
 	font-size: 100%;
 	text-align: right;
+	padding: 0 0.4em;
+	min-height: 0;
+	height: auto;
+	margin: 0;
+}
+p.tags {
+	font-size: 110%;
+	text-align: left;
+	padding: 0 0.4em;
+	min-height: 0;
+	height: auto;
+	margin: 0;
+}
+p.download {
+	font-size: 100%;
+	text-align: left;
+	padding: 0 0.4em;
+	min-height: 0;
+	height: auto;
+	margin: 0;
+}
+
+.tag {
+	border: .1em solid #222222;
+	background-color: #eeeeee;
+	color: black;
+	border-radius: .5em;
+	-moz-border-radius: .5em;
+	padding: 0 .5em;
+	margin: 0 .5em;
+}
+.tag.selected {
+	color: white;
+	font-weight: bold;
+	background-color: #222222;
+}
+.tag:hover {
+	color: white;
+	background-color: #222222;
 }
 
 #credits {

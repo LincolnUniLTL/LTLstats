@@ -299,7 +299,7 @@ require_once($connections_folder.'wikipedia.php');
 	}
 	
 	function array2csv($rowset) {
-		$csv = "";
+		$csv = '';
 		foreach($rowset as $r => $row) {
 			if (!is_array($row)) { $row = array($row); }
 			foreach($row as $c => $cell) {
@@ -311,29 +311,36 @@ require_once($connections_folder.'wikipedia.php');
 		return $csv;
 	}
 
-	function saveTable($id,$title,$note,$rowset,$format) {
+	function saveTable($rowset,$widget) {
 		global $csv_folder;
 		global $site_url;
-		$prefix = '"'.$title.'"'."\n";
+		$prefix = '"'.$widget['title'].'"'."\n";
 		$prefix .= '"'.$site_url.'"'."\n";
 		$prefix .= '"'.date('Y-m-d H:i',time()).'"'."\n";
-		$prefix .= '"'.$note.'"'."\n";
-		$prefix .= '"Display as: '.$format.'"'."\n";
+		$prefix .= '"'.$widget['note'].'"'."\n";
+		$prefix .= '"Display as: '.$widget['format'].'"'."\n";
+		$prefix .= '"Tags: '.implode(', ',$widget['tags']).'"'."\n";
 		$csv = array2csv($rowset);
-		$handle = fopen($csv_folder.$id.'.csv','w');
+		$handle = fopen($csv_folder.$widget['id'].'.csv','w');
 		fwrite($handle,$prefix);
 		$success = fwrite($handle,$csv);
 		fclose($handle);
 	}
 		
-	function doTable($id,$title,$note,$headers,$rowset,$format="Table") {
-		echo "		<div class='statdiv narrow' id='$id'>\n";
-		echo "			<h4>$title</h4>\n";
-		echo "			<p>$note</p>\n";
+	function doTable($rowset,$widget) {
+		if (!isset($widget['title'])) $widget['title'] = "";
+		if (!isset($widget['note'])) $widget['note'] = "";
+		if (!isset($widget['headers'])) $widget['headers'] = array();
+		if (!isset($widget['format'])) $widget['format'] = "Table";
+		if (!isset($widget['tags'])) $widget['tags'] = array();
+	
+		echo "		<div class='statdiv narrow' id='".$widget['id']."'>\n";
+		echo "			<h4>".$widget['title']."</h4>\n";
+		echo "			<p>".$widget['note']."</p>\n";
 		if ($rowset != array()) {
-			$rowset = formatTable($rowset,$headers);
+			$rowset = formatTable($rowset,$widget['headers']);
 		}
-		saveTable($id,$title,$note,$rowset,$format);
+		saveTable($rowset,$widget);
 		echo "		</div>\n";
 	}
 

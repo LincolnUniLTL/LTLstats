@@ -1,6 +1,6 @@
 ﻿<?php
 /* Contacts */
-$version = 'LTLStats/3.4';
+$version = 'LTLStats/4.0';
 $site_url = '';				// the URL where you'll display this dashboard
 $contact_email = ''; 		// your contact address
 
@@ -18,6 +18,7 @@ $csv_folder = dirname(__FILE__) . '\\csvs\\';   // local filepath
 $csv_download_folder = '';						// full web-accessible filepath to the same folder, eg 'http://example.com/LTLstats/csvs/';
 
 /* Styles */
+$widgetColour = 'sequential'; // 'plain' or 'sequential' or 'by_tags' - NB if a widget has multiple tags, the colour of the alphabetically-last tag will be applied
 $darkColours = array('#4aaa42','#0069b4','#a877b2','#b94d30','#261c02');
 $paleColours = array('#b3d88c','#b2cee7','#b5b2d9','#ffdd00','#dadada');
 $darkChart = array('#4aaa42','#0069b4','#a877b2','#b94d30','#261c02');
@@ -26,6 +27,7 @@ $paleChart = array("rgba(179,216,140,0.2)","rgba(178,206,231,0.2)","rgba(181,178
 /* Charts */
 $js['chart.js'] = '';		// eg 'js/Chart.js' - download from http://www.chartjs.org/
 $js['wordcloud2.js'] = '';	// eg 'js/wordcloud2.js' - download from http://timdream.org/wordcloud2.js/
+$js['tags'] = 'js/tags.js.php';
 
 /* Access */
 $proxy = '';				// eg 'http://ezproxy.lincoln.ac.nz/login?url=';
