@@ -126,7 +126,7 @@ require_once($connections_folder.'wikipedia.php');
 	
 	function convertDates($rowset,$column,$from,$to) {
 		foreach ($rowset as $r => $row) {
-			$parsed = date_create_from_format($from, $row[$column]);
+			$parsed = date_create_from_format("!".$from, $row[$column]);
 			if ($parsed) {
 				$new_date = date_format($parsed, $to);
 				$rowset[$r][$column] = $new_date;

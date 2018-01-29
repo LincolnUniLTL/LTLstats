@@ -1,6 +1,6 @@
 ﻿<?php
 /* Contacts */
-$version = 'LTLStats/4.0';
+$version = 'LTLStats/4.1';
 $site_url = '';				// the URL where you'll display this dashboard
 $contact_email = ''; 		// your contact address
 

@@ -14,6 +14,9 @@ Separate instructions on each of these below.
 
 Versioning
 ----------
+v. 4.1
+* fix `convertDates` function to prevent 'February' becoming 'March' on the 29th-31st of any month
+
 v. 4.0
 * adds tag functionality to widgets, so users can display only widgets on a particular topic. NOTE: this functionality required a change to the data structure of the CSVs, and the structure of the stanzas in `to_schedule.php` that create them. To upgrade, you'll need to update the structures in `to_schedule.php`, then delete the existing CSVs, copy across all the new code, and re-run `to_schedule.php` to create the new CSVs.
 
