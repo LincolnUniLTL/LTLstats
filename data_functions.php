@@ -135,15 +135,31 @@ require_once($connections_folder.'wikipedia.php');
 		return $rowset;
 	}
 	
-	function totalColumn($rowset,$column_array) {
+	function splitColumn($rowset,$column,$delimiter) {
+		foreach ($rowset as $r => $row) {
+			$bits = explode($delimiter, $row[$column]);
+			unset($row[$column]);
+			foreach($bits as $b => $bit) {
+				array_splice($row, $column+$b, 0, $bit);
+			}
+			$rowset[$r] = $row;
+		}
+		return $rowset;
+	}
+	
+	function totalColumn($rowset,$column_array="all") {
+		if ($column_array == "all") {
+			$column_array = array_keys($rowset[0]);
+			array_shift($column_array);
+		}
 		if (!is_array($column_array)) {
 			$column_array = array($column_array);
 		}
 		$count = count($rowset);
 		foreach($column_array as $column) {
 			$total = 0;
-			foreach($rowset as $row) {
-				if (!preg_match('/^total/i',$row[0]) && is_numeric($row[$column])) {
+			foreach($rowset as $r => $row) {
+				if (!preg_match('/^total/i',$row[0]) && $row[0] != "" && is_numeric($row[$column])) {
 					$total = $total + $row[$column];
 					}
 			} 
@@ -160,64 +176,33 @@ require_once($connections_folder.'wikipedia.php');
 		return $rowset;
 	}
 
-	function matrix($rowset,$groupCol,$valueCol) {
-		$compareCol = array_keys($rowset[0]);
-		unset($compareCol[array_search($groupCol, $compareCol)]);
-		unset($compareCol[array_search($valueCol, $compareCol)]);
-		$compareCol = array_values($compareCol);
-		$headers = array();
-		for ($i=0;$i<$valueCol;$i++) {
-			$headers[] = "";
+	function matrix($rowset, $rowCol, $colCol, $valueCol) {
+		$colHead = array_values(array_unique(array_column($rowset, $colCol)));
+		$rowHead = array_values(array_unique(array_column($rowset, $rowCol)));
+		$newrowset = array();
+		foreach ($rowset as $r => $row) {
+			$newrowset[$row[$rowCol]][$row[$colCol]] = $row[$valueCol];
 		}
-		foreach($rowset as $r => $row) {
-			if(!in_array($row[$groupCol],$headers)) {
-				$headers[] = $row[$groupCol];
+		foreach ($colHead as $c) {
+			foreach ($rowHead as $r) {
+				if (!isset($newrowset[$r][$c])) $newrowset[$r][$c] = "0";
 			}
 		}
-		$newrowset = array($headers);
-		foreach($rowset as $r => $row) {
-			$used = 0;
-			$column = $row[$groupCol];
-			foreach($newrowset[0] as $t => $title) {
-				if ($column == $title) {
-					$c = $t;
-				}
-			}
-			$value = $row[$valueCol];
-			foreach ($newrowset as $n => $new) {
-				$match = 1;
-				foreach ($compareCol as $cf => $cval) {
-					if ($new[$cval] != $row[$cval]) {
-						$match = $match * 0;
-					}
-				}
-				if ($match == 1) {
-					$newrowset[$n][$c] = $value;
-					$used = 1;
-				}
-			}
-			if ($used != 1) {
-				$row[$c] = $value;
-				$newrowset[] = $row;
+		$finalset = array();
+		$finalset[0][0] = "";
+		foreach ($colHead as $c) {
+			$finalset[0][] = $c;
+		}
+		foreach ($rowHead as $r => $row) {
+			$finalset[][0] = $row;
+			foreach ($colHead as $c => $cell) {
+				$finalset[$r+1][$c+1] = $newrowset[$row][$cell];
 			}
 		}
-		foreach($newrowset as $n => $new) {
-			for ($e = 0; $e < count($headers); $e++) {
-				if (!isset($new[$e])) {
-					$rnew[$e] = 0;
-				} else {
-					$rnew[$e] = $new[$e];
-				}
-			}
-			if ($groupCol < $valueCol) {
-				unset($rnew[$groupCol]);
-			}
-			$newrowset[$n] = array_values($rnew);
-		}
-		return $newrowset;
+		return $finalset;
 	}
-	
-	function mergeTables($rowset_array,$headers,$groupCol,$valueCol) {
+
+	function mergeTables($rowset_array,$headers,$rowCol, $valueCol) {
 		$newrowset = array();
 		foreach ($rowset_array as $t => $table) {
 			foreach ($table as $r => $row) {
@@ -231,7 +216,7 @@ require_once($connections_folder.'wikipedia.php');
 		while ($newrowset) {
 			$reallynew = array_merge($reallynew,array_shift($newrowset));
 		}
-		$reallynew = matrix($reallynew,$groupCol,$valueCol);
+		$reallynew = matrix($reallynew,$rowCol,count($reallynew[1])-1,$valueCol);
 		return $reallynew;
 	}
 

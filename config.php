@@ -1,6 +1,6 @@
 ﻿<?php
 /* Contacts */
-$version = 'LTLStats/4.1';
+$version = 'LTLStats/4.2';
 $site_url = '';				// the URL where you'll display this dashboard
 $contact_email = ''; 		// your contact address
 
@@ -60,7 +60,7 @@ $primo_url = $primo_domain . '/primo/v1/analytics/reports';
 $primo_apikey = '';			// your API key for Alma Analytics
 $primo_limit = '50';		// maximum number of rows you want to return - note resumption tokens not yet supported
 
-$scopus_url = 'http://api.elsevier.com/content/affiliation/affiliation_id/';
+$scopus_url = 'https://api.elsevier.com/content/affiliation/affiliation_id/';
 $scopus_apikey = '';		// your API key for Scopus
 $scopus_instid = ''; 		// for your institution eg '60006625';
 

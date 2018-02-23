@@ -14,17 +14,24 @@ Separate instructions on each of these below.
 
 Versioning
 ----------
+v. 4.2
+* switches to https for Scopus API
+* adds `splitColumn` function
+* makes `totalColumn` function more robust
+* updates `matrix` and `mergeTables` functions - cleaner and fixes bug with blank cells. NOTE: this update requires a change to the parameters called by any `matrix` and `mergeTables` functions in the `to_schedule.php` stanzas. See documentation below.
+* updates to `to_schedule.php` stanzas as above (particularly Altmetrics, Alma checkout locations, and LibraryH3lp)
+
 v. 4.1
 * fix `convertDates` function to prevent 'February' becoming 'March' on the 29th-31st of any month
 
 v. 4.0
-* adds tag functionality to widgets, so users can display only widgets on a particular topic. NOTE: this functionality required a change to the data structure of the CSVs, and the structure of the stanzas in `to_schedule.php` that create them. To upgrade, you'll need to update the structures in `to_schedule.php`, then delete the existing CSVs, copy across all the new code, and re-run `to_schedule.php` to create the new CSVs.
+* adds tag functionality to widgets, so users can display only widgets on a particular topic. NOTE: this functionality requires a change to the data structure of the CSVs, and the structure of the stanzas in `to_schedule.php` that create them. To upgrade, you'll need to update the structures in `to_schedule.php`, then delete the existing CSVs, copy across all the new code, and re-run `to_schedule.php` to create the new CSVs.
 
 v. 3.4
-* converts exlibris_status.php connection to use REST API instead of screenscraping
+* converts `exlibris_status.php` connection to use REST API instead of screenscraping
 
 v. 3.3
-* adds integration with wordcloud2.js
+* adds integration with `wordcloud2.js`
 * adds CareerHub connection
 * adds function to sort data by selected columns
 * BUGFIX: deals with ampersands in Ex Libris APIs
@@ -110,8 +117,9 @@ Currently the connection files available are to:
 * swapColRow($rowset) - switches your rows into columns and vice versa, eg turning a vertical table into a horizontal one
 * mergeMonthYear($rowset,$month_column,$year_column) - merges a month column and year column into a single date column
 * convertDates($rowset,$column,$from,$to) - converts dates in a given column between formats stated as per http://php.net/manual/en/function.date.php
-* totalColumn($rowset, $columnarray) - creates a "Total" row, summing the values in any column listed in $columnarray
-* matrix($rowset,$groupCol,$valueCol) - the most powerful and clunkily coded. (I'm convinced there's a better way but haven't nutted it out yet.) Imagine you've got a table:
+* splitColumn($rowset,$column,$delimiter) - converts values in a given column into 2 or more new columns, splitting on the given delimiter
+* totalColumn($rowset, $columnarray) - creates a "Total" row, summing the values in any column listed in $columnarray. If $columnarray isn't specified (ie totalColumn($rowset)) it will total every column except the first.
+* matrix($rowset, $rowCol, $colCol, $valueCol) - the most powerful function. Imagine you've got a table:
 
 |purple|cars|  23|  
 |:-----|:---|---:|  
@@ -129,9 +137,9 @@ But you want a table:
 |fans|     2|     6|  
 |hats|    11|    42|
 
-So $groupCol is the column number for the values you want in each column grouping - ie purple/orange, ie column 0. $valueCol is the column number for the values that are actually values - ie 23,3,11,19,6,42, ie column 2.
+So $rowCol is the column number for the values you want as your final row headers, ie column 1. $colCol is for your final column headers, ie purple/orange, ie column 0. $valueCol is for the values that are actually values - ie 23,3,11,19,6,42, ie column 2. (NOTE: Prior to v.4.2 this had different, clunkier syntax; see previous versions of the README.)
 
-* mergeTables($rowsetarray,$headers,$groupCol,$valueCol) - creates a matrix (as above) but starting with two or more similarly structured tables ($rowsetarray) and an array of $headers. Eg  
+* mergeTables($rowset_array,$headers,$rowCol,$valueCol) - creates a matrix (as above) but starting with two or more similarly structured tables ($rowset_array) and an array of $headers. Eg  
     $rowset[0] = 
 	
 |cars|  23|  
@@ -148,7 +156,7 @@ So $groupCol is the column number for the values you want in each column groupin
 
   $headers = {"purple","orange"}
 
-$valueCol remains the column number for the actual values, so here (23,2,11,etc) - it would be 1. Since {"purple","orange"} aren't in the original tables, they get added as a new column during the function, so $groupCol should be equal to however many columns are in the original - in this case 2.
+$valueCol remains the column number for the actual values, so here (23,2,11,etc) - it would be 1. $rowCol is for your row headers, ie column 0. (NOTE: Prior to v.4.2 this had different, clunkier syntax; see previous versions of the README.)
 
 Normal php array functions will work as well, eg sorting. Mix and match according to your original data and desired result. When you're done:
 

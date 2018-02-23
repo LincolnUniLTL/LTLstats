@@ -15,7 +15,7 @@ require_once('data_functions.php');
 		doTable($rowset,$widget);
 	}
 
-/* Altmetrics stats */
+/* Altmetrics stats - example of mergeTables */
 	$path = array();
 	$path[] = ""; // eg "&group=lincoln%3Agroup%3A4&order_by=score";
 	$path[] = ""; // eg "&group=lincoln%3Agroup%3A12&order_by=score";
@@ -34,10 +34,9 @@ require_once('data_functions.php');
 			krsort($rowset[$s]);
 		}
 		$mergeheaders = array('Faculty 1','Faculty 2','Faculty 3'); // your names
-		$newrowset = mergeTables($rowset,$mergeheaders,2,1);
+		$newrowset = mergeTables($rowset,$mergeheaders,0,1);
 		$newrowset = convertDates($newrowset,0,'Y-m','M Y');
-		$totals = array(1,2,3);
-		$newrowset = totalColumn($newrowset,$totals);
+		$newrowset = totalColumn($newrowset);
 		doTable($newrowset,$widget);
 	}
 
@@ -95,13 +94,12 @@ require_once('data_functions.php');
 			);
 		foreach ($rowset as $s => $set) {
 			$rowset[$s] = keepBottom($set,12);
+			$rowset[$s] = mergeMonthYear($rowset[$s],2,3);
+			$rowset[$s] = convertDates($rowset[$s],2,'F Y','M Y');
 			krsort($rowset[$s]);
 		}
 		$mergeheaders = array('Circ desks','Self-checks');
-		$newrowset = mergeTables($rowset,$mergeheaders,5,4);
-		$newrowset = keepRight($newrowset,4);
-		$newrowset = mergeMonthYear($newrowset,0,1);
-		$newrowset = convertDates($newrowset,0,'F Y','M Y');
+		$newrowset = mergeTables($rowset,$mergeheaders,2,3);
 		$totals = array(1,2);
 		$newrowset = totalColumn($newrowset,$totals);
 		doTable($newrowset,$widget);
@@ -155,15 +153,14 @@ require_once('data_functions.php');
 		doTable($rowset,$widget);
 	}
 
-/* LibraryH3lp chats per month */
+/* LibraryH3lp chats per month - demonstrates matrix functionality */
 	$rowset = getLH3Rows("reports/chats-per-month");
 	if ($rowset) {
 		$widget = array(
 			'id' => "libraryh3lp_by_month",
 			'title' => "LibraryH3lp",
-			'note' => "In the last year, we've answered the following questions on <a href='http://example.com/libraryh3lp/'>LibraryH3lp</a>:",
-			'headers' => array("Month","Questions"),
-			'format' => "Bar",
+			'note' => "Over the years, we've answered the following questions on <a href='http://example.com/libraryh3lp/'>LibraryH3lp</a>:",
+			'format' => "Radar",
 			'tags' => array("library", "research", "teaching", "academic skills", "careers"),
 			);
 		$rowset = str_replace("protocol,","",$rowset);
@@ -171,11 +168,12 @@ require_once('data_functions.php');
 		$rowset = csv2array($rowset);
 		$rowset = swapColRow($rowset);
 		array_pop($rowset);
-		$rowset = keepBottom($rowset,12);
 		krsort($rowset);
-		$rowset = totalColumn($rowset,1);
 		$rowset = convertDates($rowset,0,'n/Y','M Y');
-		doTable($rowset,$widget);
+		$newrowset = splitColumn($rowset,0," ");
+		$newrowset = matrix($newrowset, 0, 1, 2);
+		$newrowset = totalColumn($newrowset);
+		doTable($newrowset,$widget);
 	}
 
 /* MRBS room bookings */
@@ -183,7 +181,7 @@ require_once('data_functions.php');
 	$from = date('Y-m-d', strtotime($now . ' -1 year'));
 	$to = date('Y-m-d', strtotime($now . ' -1 day'));
 	$rowset = getMRBSRows($from,$to);
-	if ($rowset['rooms']) {
+	if ($rowset['rooms'] && $rowset['users'] > 0) {
 		$note = "In the last year, <span class='value'>" . $rowset['users'] . "</span>";
 		$note .= " people <a href='".$mrbs_url."'>booked ";
 		$note .= "<span class='value'>" . $rowset['rooms'] . "</span>";
@@ -201,7 +199,7 @@ require_once('data_functions.php');
 		doTable($rowset,$widget);
 	}
 
-/* OAI item count 
+/* OAI item count */
 	$rowset = getOAIdata("http://example.com/dspace-oai/request");	// your URL
 	if ($rowset['items']) {
 		$widget = array(
@@ -212,7 +210,7 @@ require_once('data_functions.php');
 			);
 		doTable($rowset,$widget);
 	}
-	*/
+	
 /* Scopus stats */
 	$rowset = getScopus();
 	$doclink = $proxy . "http://www.scopus.com/results/results.url?src=s&sot=aff&s=%28AF-ID%28" . $scopus_instid . "%29%29";
