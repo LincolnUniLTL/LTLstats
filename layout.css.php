@@ -155,7 +155,7 @@
 .statdiv canvas {
 	border: .1em solid black;
 }
-<?		
+<?php
 	}
 ?>
 

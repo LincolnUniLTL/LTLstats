@@ -20,10 +20,10 @@ function warningNote(warningText) {
 <?php 
 	require_once('connections/exlibris_status.php');
 ?>
-status_A = '<? echo $status_A; ?>';
-note_A = '<? echo $note_A; ?>';
-status_P = '<? echo $status_P; ?>';
-note_P = '<? echo $note_P; ?>';
+status_A = '<?php echo $status_A; ?>';
+note_A = '<?php echo $note_A; ?>';
+status_P = '<?php echo $status_P; ?>';
+note_P = '<?php echo $note_P; ?>';
 
 if (theAlert == "") {
 	if (status_A == "Performance issues" || status_A == "Service disruption" || status_A == "Scheduled maintenance") {

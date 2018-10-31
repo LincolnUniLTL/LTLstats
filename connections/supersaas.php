@@ -1,4 +1,4 @@
-<?
+<?php
 	function getSuperSaas($start_date) {
 		global $supersaas_schedules, $supersaas_password, $supersaas_account;
 		$checksum = md5($supersaas_account.$supersaas_password);

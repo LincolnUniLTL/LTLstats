@@ -1,11 +1,11 @@
-﻿<?php require_once('config.php'); ?>
+<?php require_once('config.php'); ?>
 <html>
 	<head>
 		<title>LTLstats</title>
 		<link rel="stylesheet" type="text/css" href="layout.css.php"/>
-		<script src="<?=$js['chart.js'];?>" type="text/javascript"></script>
-		<script src="<?=$js['wordcloud2.js'];?>" type="text/javascript"></script>
-		<script src="<?=$js['tags'];?>" type="text/javascript"></script>
+		<script src="<?php echo $js['chart.js']; ?>" type="text/javascript"></script>
+		<script src="<?php echo $js['wordcloud2.js']; ?>" type="text/javascript"></script>
+		<script src="<?php echo $js['tags']; ?>" type="text/javascript"></script>
 	</head>
 	<body>
 <?php
@@ -97,22 +97,22 @@
 /* START "If it's displayable, create a div for it" */
 		if ($format && $format!="None") {
 ?>
-		<div class='statdiv width-<? echo $width;
+		<div class='statdiv width-<?php echo $width;
 			if ($tags) {
 				foreach ($tags as $t) {
 					$t = str_replace(" ","_",$t);
 					echo ' tagged_'.$t;
 				}
-			}?>' id='<?=$id?>'>
-			<h4><?=$title?></h4>
-			<p><?=$note?></p>
-<?	/* If there's a chart (and associated javascript), create a canvas and script for it */
+			}?>' id='<?php echo $id; ?>'>
+			<h4><?php echo $title; ?></h4>
+			<p><?php echo $note; ?></p>
+<?php	/* If there's a chart (and associated javascript), create a canvas and script for it */
 		if ($format!="Table" && $format!="None" && file_exists($js['chart.js'])) {
 			$this_colour = rand(0,count($darkChart)-1);
 ?>
-			<canvas id='<?=$id?>-chart' height='<?=round($height*150)?>' width='<?=round($width*150)?>'></canvas>
+			<canvas id='<?php echo $id; ?>-chart' height='<?php echo round($height*150); ?>' width='<?php echo round($width*150); ?>'></canvas>
 			<script>
-<?		/* Wordles are special */
+<?php		/* Wordles are special */
 			if ($format=="Wordle" && file_exists($js['wordcloud2.js'])) {
 				$maxlength = 1;
 				array_shift($chartset);
@@ -126,8 +126,8 @@
 					}
 				}
 ?>
-				var <?=$id?>Data = {list: [
-<?				foreach ($chartset as $c) {
+				var <?php echo $id; ?>Data = {list: [
+<?php			foreach ($chartset as $c) {
 					if (strlen($c[0])*$c[1] > $maxlength) {
 						$maxlength = strlen($c[0])*$c[1];
 					}
@@ -139,13 +139,13 @@
 				}
 ?>
 				],
-				weightFactor: <?=round($width*180)/$maxlength?>,
+				weightFactor: <?php echo round($width*180)/$maxlength; ?>,
 				gridSize: 5,
 				drawOutOfBound: false,
 				maskGapWidth: 0.1,
 				rotateRatio: .9
 				};
-<? 		/* Line, Bar, and Radar charts have their data in a certain format */
+<?php	/* Line, Bar, and Radar charts have their data in a certain format */
 		} elseif ($format=="Line" || $format=="Bar" || $format=="Radar") { 
 				$chartlabels = $chartset[0];
 				array_shift($chartset);
@@ -163,53 +163,53 @@
 				krsort($chartlabels);
 				$chartlabels = implode(",", $chartlabels);
 ?>
-				var <?=$id?>Data = {
-				labels : [<?=$chartlabels?>],
+				var <?php echo $id; ?>Data = {
+				labels : [<?php echo $chartlabels; ?>],
 				datasets : [
-<? 				foreach ($chartset as $s => $set) {
+<?php			foreach ($chartset as $s => $set) {
 					$label = array_shift($set);
 					krsort($set);
 					$set = implode(",",$set);
 ?>
 					{
-						label: "<?=$label?>",
-<?			/* Line and Radar charts have certain colour data */
+						label: "<?php echo $label; ?>",
+<?php		/* Line and Radar charts have certain colour data */
  					if ($format == "Line" || $format=="Radar") { ?>
-						fillColor : "<?=$fill[fmod($s+$this_colour,count($darkChart))]?>",
-						strokeColor : "<?=$point[fmod($s+$this_colour,count($darkChart))]?>",
-						pointColor : "<?=$point[fmod($s+$this_colour,count($darkChart))]?>",
+						fillColor : "<?php echo $fill[fmod($s+$this_colour,count($darkChart))]; ?>",
+						strokeColor : "<?php echo $point[fmod($s+$this_colour,count($darkChart))]; ?>",
+						pointColor : "<?php echo $point[fmod($s+$this_colour,count($darkChart))]; ?>",
 						pointStrokeColor : "#fff",
-						pointHighlightFill : "<?=$fill[fmod($s+$this_colour,count($darkChart))]?>",
+						pointHighlightFill : "<?php echo $fill[fmod($s+$this_colour,count($darkChart))]; ?>",
 						pointHighlightStroke : "$fff",
-<?			/* Bar charts have different colour data */
+<?php		/* Bar charts have different colour data */
 					} elseif ($format == "Bar" ) { ?>
-						fillColor : "<?=$point[fmod($s+$this_colour,count($darkChart))]?>",
-						strokeColor : "<?=$point[fmod($s+$this_colour,count($darkChart))]?>",
-						highlightFill: "<?=$fill[fmod($s+$this_colour,count($darkChart))]?>",
+						fillColor : "<?php echo $point[fmod($s+$this_colour,count($darkChart))]; ?>",
+						strokeColor : "<?php echo $point[fmod($s+$this_colour,count($darkChart))]; ?>",
+						highlightFill: "<?php echo $fill[fmod($s+$this_colour,count($darkChart))]; ?>",
 						highlightStroke: "$fff",
-<?					} ?>
-						data : [<?=$set?>]
+<?php				} ?>
+						data : [<?php echo $set; ?>]
 					},
-<? 				} ?>
+<?php			} ?>
 				]
 				}
-<? 		/* Pie, Doughnut, and PolarArea charts have their data in a different format */
+<?php		/* Pie, Doughnut, and PolarArea charts have their data in a different format */
 			} elseif ($format=="Pie" || $format=="Doughnut" || $format=="PolarArea") {
 				array_shift($chartset);
 				array_pop($chartset);
 ?>
-				var <?=$id?>Data = [
-<?				foreach ($chartset as $s => $set) { ?>
-					{ value: <?=$set[1]?>,
-					color:"<?=$point[fmod($s+$this_colour,count($darkChart))]?>",
-					highlight:"<?=$fill[fmod($s+$this_colour,count($darkChart))]?>",
-					label: "<?=$set[0]?>"
+				var <?php echo $id; ?>Data = [
+<?php			foreach ($chartset as $s => $set) { ?>
+					{ value: <?php echo $set[1]; ?>,
+					color:"<?php echo $point[fmod($s+$this_colour,count($darkChart))]; ?>",
+					highlight:"<?php echo $fill[fmod($s+$this_colour,count($darkChart))]; ?>",
+					label: "<?php echo $set[0]; ?>"
 					},
-<? 				} ?>
+<?php			} ?>
 				]
-<?
+<?php
 			}
-	/* Wordles are special */
+	/* Wordles are special but can't for the life of me figure out PNGs */
 		if ($format=="Wordle") {
 			$chartload[] = 'var ctx = document.getElementById("'.$id.'-chart");
 			ctx.style.width = ctx.parentNode.firstElementChild.offsetWidth+"px";
@@ -227,7 +227,7 @@
 ?>
 			</script>
 			<noscript>
-<?	/* For both tables and (in a noscript behind the canvas) charts, include the tabular data - assuming there is some */
+<?php /* For both tables and (in a noscript behind the canvas) charts, include the tabular data - assuming there is some */
 	}
 	if ($format && $format!="None" && $rowset[0][1]) {
 		echo "				<table>\n";
@@ -254,8 +254,8 @@
 		echo "			</noscript>\n";
 	}
 ?>
- 			<p class='modified'>As of: <?=$timestamp?></p>
-			<p class='tags'><?
+ 			<p class='modified'>As of: <?php echo $timestamp; ?></p>
+			<p class='tags'><?php
 	if ($tags) {
 		echo "\n				<span>Tags: </span>";
 		foreach ($tags as $t) {
@@ -267,13 +267,15 @@
 
  			?></p>
 			<p class='download'>
-<?	if ($format && $format!="None" && $rowset[0][1]) { ?>
+<?php
+	if ($format && $format!="None" && $rowset[0][1]) { ?>
 				<span>Save as: </span>
-				<span><a href='<?=$csv_download_folder . $id . ".csv";?>'>CSV</a></span>
-<?	} ?>
+				<span><a href='<?php echo $csv_download_folder . $id . ".csv"; ?>'>CSV</a></span>
+<?php
+	} ?>
 			</p>
 		</div>
-<?
+<?php
 	}
 	}
 ?>
@@ -281,7 +283,8 @@
 <div style="clear:both;"></div>
 		<script>
 		window.onload = function(){
-<? foreach ($chartload as $c) {
+<?php
+	foreach ($chartload as $c) {
 	echo $c;
 }
 ?>

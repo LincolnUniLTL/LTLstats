@@ -41,18 +41,18 @@ function init_tags() {
 		for (var i=0; i < tags.length; i++) {
 			tags[i].onclick = function(){showTagged(this.className.substr(8).replace(" selected",""));};
 		}
-<?
+<?php
 		include("../config.php");
 		if ($widgetColour === 'by_tags') {
 ?>
 	/* CSS tags */
 		var css = '';
-		var darkColors = new Array(<?
+		var darkColors = new Array(<?php
 		foreach ($darkColours as $d) {
 			echo '"'.$d.'",';
 		}
 ?>);
-		var paleColors = new Array(<?
+		var paleColors = new Array(<?php
 		foreach ($paleColours as $p) {
 			echo '"'.$p.'",';
 		}
@@ -79,7 +79,7 @@ function init_tags() {
 			style.appendChild(document.createTextNode(css));
 		}
 		document.getElementsByTagName('head')[0].appendChild(style);
-<?
+<?php
 		}
 ?>
 	/* If a tag is included in the URL when the page is first loaded, let the charts load then show only appropriately tagged widgets */
