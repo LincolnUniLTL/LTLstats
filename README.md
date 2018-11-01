@@ -14,6 +14,12 @@ Separate instructions on each of these below.
 
 Versioning
 ----------
+v. 4.2.2
+* updates authentication method for LibraryH3lp
+
+v. 4.2.1
+* expands <? short tags to <?php for increased compatibility
+
 v. 4.2
 * switches to https for Scopus API
 * adds `splitColumn` function
