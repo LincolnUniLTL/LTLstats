@@ -14,6 +14,9 @@ Separate instructions on each of these below.
 
 Versioning
 ----------
+v. 4.2.3
+* adds headers for LibraryH3lp connection
+
 v. 4.2.2
 * updates authentication method for LibraryH3lp
 
