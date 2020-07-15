@@ -73,7 +73,7 @@ $supersaas_password = '';	// your admin password
 
 $careerhub_url = '';		// eg 'https://careerhub.lincoln.ac.nz/';
 $careerhub_host = '';		// eg 'careerhub.lincoln.ac.nz';
-$careerhub_id = ''			// provided by CareerHub Support
+$careerhub_id = '';			// provided by CareerHub Support
 $careerhub_secret = '';		// provided by CareerHub Support
 $careerhub_scope = '';		// provided by CareerHub Support
 
