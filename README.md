@@ -2,6 +2,8 @@ LTLstats
 ======
 A php dashboard for displaying statistics harvested by common library APIs, as tables or colourful charts.
 
+**NOTE:** We last used this successfully in PHP 5.6. Some things went wonky in PHP 7.2 and will undoubtedly be fatal in PHP 8.x. I'm hoping to update it Some Day but this is very dependent on finding time....
+
 May be pronounced "Little Stats". This repository actually contains two interwoven applications:
 
 1. LTLstats proper: all the files except `warning_note.js.php`
